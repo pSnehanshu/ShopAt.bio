@@ -25,6 +25,7 @@ export const shops = pgTable("shops", {
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
+  firebase_id: varchar("firebase_id", { length: 50 }).notNull().unique(),
   created_at: timestamp("created_at").defaultNow(),
 });
 

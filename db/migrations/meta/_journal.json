@@ -8,6 +8,13 @@
       "when": 1727026972305,
       "tag": "0000_parallel_blink",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1727036022074,
+      "tag": "0001_green_namorita",
+      "breakpoints": true
     }
   ]
 }
