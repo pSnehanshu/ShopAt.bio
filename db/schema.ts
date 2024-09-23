@@ -6,6 +6,8 @@ import {
   uuid,
   boolean,
   integer,
+  text,
+  unique,
 } from "drizzle-orm/pg-core";
 
 export const shops = pgTable("shops", {
@@ -60,17 +62,25 @@ export const currencyRelations = relations(currencies, ({ many }) => ({
   shops: many(shops),
 }));
 
-export const products = pgTable("products", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  is_visible: boolean("is_visible").default(true),
-  shop_id: uuid("shop_id")
-    .references(() => shops.id)
-    .notNull(),
-  qty: integer("qty").default(0),
-  price: integer("price").notNull(),
-  created_at: timestamp("created_at").defaultNow(),
-});
+export const products = pgTable(
+  "products",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    url_name: varchar("url_name", { length: 255 }).notNull(),
+    description: text("description"),
+    is_visible: boolean("is_visible").default(true),
+    shop_id: uuid("shop_id")
+      .references(() => shops.id)
+      .notNull(),
+    qty: integer("qty").default(0),
+    price: integer("price").notNull(),
+    created_at: timestamp("created_at").defaultNow(),
+  },
+  (t) => ({
+    url_name_shop_id_unq: unique().on(t.url_name, t.shop_id),
+  })
+);
 
 export const productRelations = relations(products, ({ many, one }) => ({
   shop: one(shops, { fields: [products.shop_id], references: [shops.id] }),
