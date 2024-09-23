@@ -88,3 +88,23 @@ export async function getProductByUrlNameOrThrow(
 
   return product;
 }
+
+export async function getHomepageProducts(shopId: string) {
+  const products = await db.query.products.findMany({
+    where: (fields, { eq, and }) =>
+      and(eq(fields.is_visible, true), eq(fields.shop_id, shopId)),
+    with: {
+      photos: {
+        where: (fields, { eq }) => eq(fields.is_main, true),
+        limit: 1,
+        orderBy: (fields, { desc }) => desc(fields.created_at),
+      },
+    },
+    limit: 20,
+  });
+
+  return products.map((p) => ({
+    ...p,
+    photoUrl: getFileURL(p.photos.at(0)?.path),
+  }));
+}

@@ -93,11 +93,11 @@ export const currencies = pgTable("currencies", {
     (): SQL => sql`${currencies.symbol}`
   ),
   multiplier: integer("multiplier").notNull(),
-  one_usd_val: integer("one_usd_val").default(1),
+  one_usd_val: integer("one_usd_val").default(1).notNull(),
   /** Can be of format `$?` or `₹?` or `? EUR`, where ? is the placeholder for the amount */
-  formatting: varchar("formatting", { length: 10 }).$default(
-    (): SQL => sql`${currencies.symbol} ?`
-  ),
+  formatting: varchar("formatting", { length: 10 })
+    .$default((): SQL => sql`${currencies.symbol} ?`)
+    .notNull(),
   created_at: timestamp("created_at").defaultNow(),
 });
 
@@ -112,11 +112,11 @@ export const products = pgTable(
     name: varchar("name", { length: 255 }).notNull(),
     url_name: varchar("url_name", { length: 255 }).notNull(),
     description: text("description"),
-    is_visible: boolean("is_visible").default(true),
+    is_visible: boolean("is_visible").default(true).notNull(),
     shop_id: uuid("shop_id")
       .references(() => shops.id, { onDelete: "cascade", onUpdate: "cascade" })
       .notNull(),
-    qty: integer("qty").default(0),
+    qty: integer("qty").default(0).notNull(),
     price: integer("price").notNull(),
     created_at: timestamp("created_at").defaultNow(),
   },
@@ -132,12 +132,14 @@ export const productRelations = relations(products, ({ many, one }) => ({
 
 export const productPhotos = pgTable("product_photos", {
   id: uuid("id").defaultRandom().primaryKey(),
-  is_visible: boolean("is_visible").default(true),
+  is_visible: boolean("is_visible").default(true).notNull(),
   caption: varchar("caption", { length: 255 }),
   product_id: uuid("product_id")
     .references(() => products.id, { onDelete: "cascade", onUpdate: "cascade" })
     .notNull(),
   path: varchar("path", { length: 255 }).notNull(),
+  is_main: boolean("is_main").default(false).notNull(),
+  created_at: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const productPhotoRelations = relations(productPhotos, ({ one }) => ({

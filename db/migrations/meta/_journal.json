@@ -57,6 +57,27 @@
       "when": 1727099601812,
       "tag": "0007_cuddly_caretaker",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1727106415238,
+      "tag": "0008_mixed_nightmare",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1727106580783,
+      "tag": "0009_furry_northstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1727108007997,
+      "tag": "0010_misty_red_hulk",
+      "breakpoints": true
     }
   ]
 }
