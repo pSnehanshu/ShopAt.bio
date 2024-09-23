@@ -1,4 +1,4 @@
-import { SQL, sql } from "drizzle-orm";
+import { relations, SQL, sql } from "drizzle-orm";
 import {
   pgTable,
   timestamp,
@@ -22,12 +22,25 @@ export const shops = pgTable("shops", {
   created_at: timestamp("created_at").defaultNow(),
 });
 
+export const shopRelations = relations(shops, ({ many, one }) => ({
+  products: many(products),
+  owner: one(users, { fields: [shops.owner_id], references: [users.id] }),
+  base_currency_info: one(currencies, {
+    fields: [shops.base_currency],
+    references: [currencies.symbol],
+  }),
+}));
+
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
   firebase_id: varchar("firebase_id", { length: 50 }).notNull().unique(),
   created_at: timestamp("created_at").defaultNow(),
 });
+
+export const userRelations = relations(users, ({ many }) => ({
+  shops: many(shops),
+}));
 
 export const currencies = pgTable("currencies", {
   symbol: varchar("symbol", { length: 3 }).primaryKey(),
@@ -43,6 +56,10 @@ export const currencies = pgTable("currencies", {
   created_at: timestamp("created_at").defaultNow(),
 });
 
+export const currencyRelations = relations(currencies, ({ many }) => ({
+  shops: many(shops),
+}));
+
 export const products = pgTable("products", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -53,8 +70,12 @@ export const products = pgTable("products", {
   qty: integer("qty").default(0),
   price: integer("price").notNull(),
   created_at: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });
+
+export const productRelations = relations(products, ({ many, one }) => ({
+  shop: one(shops, { fields: [products.shop_id], references: [shops.id] }),
+  photos: many(productPhotos),
+}));
 
 export const productPhotos = pgTable("product_photos", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -68,3 +89,10 @@ export const productPhotos = pgTable("product_photos", {
       sql`'product-photos/' || ${productPhotos.product_id} || '/shopat_pic_' || ${productPhotos.id}`
   ),
 });
+
+export const productPhotoRelations = relations(productPhotos, ({ one }) => ({
+  product: one(products, {
+    fields: [productPhotos.product_id],
+    references: [products.id],
+  }),
+}));

@@ -15,6 +15,13 @@
       "when": 1727036022074,
       "tag": "0001_green_namorita",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1727077248084,
+      "tag": "0002_foamy_patriot",
+      "breakpoints": true
     }
   ]
 }
