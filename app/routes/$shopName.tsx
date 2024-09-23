@@ -1,5 +1,5 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Outlet, useLoaderData } from "@remix-run/react";
 import { getShopByUrlNameOrThrow } from "~/utils/queries.server";
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -7,12 +7,13 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return json({ shop });
 }
 
-export default function Index() {
+export default function ShopLayout() {
   const { shop } = useLoaderData<typeof loader>();
 
   return (
     <div>
-      <pre>{JSON.stringify(shop, null, 2)}</pre>
+      <h1>Shop {shop.full_name}</h1>
+      <Outlet />
     </div>
   );
 }

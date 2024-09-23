@@ -3,7 +3,7 @@ import { Auth, getAuth } from "firebase-admin/auth";
 import serviceAccountKey from "../serviceAccountKey.json";
 
 let app: App;
-let auth: Auth;
+let serverAuth: Auth;
 
 if (getApps().length === 0) {
   app = initializeApp({
@@ -13,10 +13,10 @@ if (getApps().length === 0) {
       privateKey: serviceAccountKey.private_key,
     }),
   });
-  auth = getAuth(app);
+  serverAuth = getAuth(app);
 } else {
   app = getApp();
-  auth = getAuth(app);
+  serverAuth = getAuth(app);
 }
 
-export { auth };
+export { serverAuth };

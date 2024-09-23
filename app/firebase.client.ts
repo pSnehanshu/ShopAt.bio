@@ -12,7 +12,7 @@ const app = initializeApp({
   measurementId: "G-46YG0F984J",
 });
 
-export const auth = getAuth(app);
+export const clientAuth = getAuth(app);
 
 // Let Remix handle the persistence via session cookies.
-setPersistence(auth, inMemoryPersistence);
+setPersistence(clientAuth, inMemoryPersistence);

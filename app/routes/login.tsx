@@ -1,16 +1,16 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { SyntheticEvent, useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth as clientAuth } from "~/firebase.client";
+import { clientAuth } from "~/firebase.client";
+import { serverAuth } from "~/firebase.server";
 import { ActionFunction, LoaderFunctionArgs } from "@remix-run/node";
-import { auth as serverAuth } from "~/firebase.server";
 import invariant from "tiny-invariant";
 import { redirect, useFetcher } from "@remix-run/react";
 import { session } from "~/utils/cookies";
 import { FaFacebook, FaGoogle, FaEnvelope } from "react-icons/fa6";
 import { SlSocialInstagram } from "react-icons/sl";
 import { IoIosArrowBack } from "react-icons/io";
-import { getAuthInfo } from "~/utils/auth.server";
+import { getAuthInfo } from "~/utils/queries.server";
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();

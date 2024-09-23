@@ -4,7 +4,7 @@ import {
   type MetaFunction,
 } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { getAuthInfo } from "~/utils/auth.server";
+import { getAuthInfo } from "~/utils/queries.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const auth = await getAuthInfo(request);
