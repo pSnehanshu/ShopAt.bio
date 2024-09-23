@@ -50,12 +50,36 @@ export default function ShopLayout() {
   }, []);
 
   return (
-    <div className="w-full max-w-3xl mx-auto border dark:border-gray-500 border-y-0 min-h-screen">
+    <div className="w-full max-w-2xl mx-auto border border-y-0 min-h-screen">
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `body::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-size: cover;
+          background-position: center;
+          background-attachment: fixed;
+          filter: blur(30px); 
+          z-index: -1;
+          background-image: url("${shop.bgUrl}");
+        }`,
+        }}
+      />
+
       {/* Header */}
-      <div className="border border-x-0 dark:border-gray-500 border-t-0">
+      <div
+        className="border border-x-0 border-t-0 bg-cover bg-no-repeat"
+        style={{
+          backgroundImage: `url(${shop.coverUrl})` ?? "",
+        }}
+      >
         <div className="flex justify-end p-2">
           <button
-            className="border p-2 rounded-md bg-gray-200 dark:bg-transparent"
+            className="border p-2 rounded-md bg-gray-200"
             onClick={() =>
               shareLink({
                 title: `${shop.full_name}'s shop at ShopAt.bio`,
@@ -64,14 +88,14 @@ export default function ShopLayout() {
               })
             }
           >
-            <LuShare className="text-gray-600 dark:text-white" />
+            <LuShare className="text-gray-600" />
           </button>
         </div>
 
         <div className="mt-16 flex justify-center mb-4 mx-2">
           <img
-            className="rounded-full min-w-24 min-h-24 max-h-48 object-contain"
-            src="https://placehold.co/100"
+            className="rounded-full w-24 min-h-24 object-contain border"
+            src={shop.iconUrl ?? "https://placehold.co/100"}
             alt={`${shop.url_name}'s logo`}
           />
         </div>
@@ -90,7 +114,7 @@ export default function ShopLayout() {
       </div>
 
       {/* Footer */}
-      <div className="border border-x-0 border-b-0 dark:border-gray-500 p-2 py-8">
+      <div className="border border-x-0 border-b-0 p-2 py-8 bg-[#e5e7eb]">
         <p className="text-center">
           Powered by{" "}
           <a

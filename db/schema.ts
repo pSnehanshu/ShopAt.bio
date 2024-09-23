@@ -26,6 +26,9 @@ export const shops = pgTable("shops", {
       onUpdate: "cascade",
     })
     .notNull(),
+  icon_path: varchar("icon_path", { length: 255 }),
+  cover_path: varchar("cover_path", { length: 255 }),
+  bg_path: varchar("bg_path", { length: 255 }),
   created_at: timestamp("created_at").defaultNow(),
 });
 
@@ -134,10 +137,7 @@ export const productPhotos = pgTable("product_photos", {
   product_id: uuid("product_id")
     .references(() => products.id, { onDelete: "cascade", onUpdate: "cascade" })
     .notNull(),
-  file_path: varchar("file_path").generatedAlwaysAs(
-    (): SQL =>
-      sql`'product-photos/' || ${productPhotos.product_id} || '/shopat_pic_' || ${productPhotos.id}`
-  ),
+  path: varchar("path", { length: 255 }).notNull(),
 });
 
 export const productPhotoRelations = relations(productPhotos, ({ one }) => ({

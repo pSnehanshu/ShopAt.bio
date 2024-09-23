@@ -50,6 +50,13 @@
       "when": 1727084727022,
       "tag": "0006_true_vulcan",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1727099601812,
+      "tag": "0007_cuddly_caretaker",
+      "breakpoints": true
     }
   ]
 }

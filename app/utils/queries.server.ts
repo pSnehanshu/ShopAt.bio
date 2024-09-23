@@ -4,7 +4,7 @@ import { InferSelectModel } from "drizzle-orm";
 import { DecodedIdToken } from "firebase-admin/auth";
 import invariant from "tiny-invariant";
 import { session } from "~/utils/cookies";
-import { serverAuth } from "~/firebase.server";
+import { getFileURL, serverAuth } from "~/firebase.server";
 
 type AuthInfo =
   | {
@@ -63,7 +63,12 @@ export async function getShopByUrlNameOrThrow(
     throw new Response("Not Found", { status: 404 });
   }
 
-  return shop;
+  return {
+    ...shop,
+    iconUrl: getFileURL(shop.icon_path),
+    coverUrl: getFileURL(shop.cover_path),
+    bgUrl: getFileURL(shop.bg_path),
+  };
 }
 
 export async function getProductByUrlNameOrThrow(
