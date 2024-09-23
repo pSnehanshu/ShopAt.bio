@@ -55,6 +55,7 @@ export async function getShopByUrlNameOrThrow(
         },
       },
       base_currency_info: true,
+      links: true,
     },
   });
 

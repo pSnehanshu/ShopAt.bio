@@ -1,5 +1,5 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+// import { useLoaderData } from "@remix-run/react";
 import { getShopByUrlNameOrThrow } from "~/utils/queries.server";
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -8,11 +8,12 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 export default function Index() {
-  const { shop } = useLoaderData<typeof loader>();
+  // const { shop } = useLoaderData<typeof loader>();
 
   return (
     <div>
-      <pre>{JSON.stringify(shop, null, 2)}</pre>
+      <h1>Storefront main page</h1>
+      {/* <pre>{JSON.stringify(shop, null, 2)}</pre> */}
     </div>
   );
 }

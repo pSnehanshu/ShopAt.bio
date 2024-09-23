@@ -1,19 +1,170 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
+import {
+  json,
+  SerializeFrom,
+  type LoaderFunctionArgs,
+  type MetaFunction,
+} from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
+import type { socialMediaLinks } from "db/schema";
+import { InferSelectModel } from "drizzle-orm";
 import { getShopByUrlNameOrThrow } from "~/utils/queries.server";
+import { useCallback, useMemo } from "react";
+import clsx from "clsx";
+import {
+  PiYoutubeLogo,
+  PiFacebookLogo,
+  PiGlobeLight,
+  PiInstagramLogo,
+  PiLinkedinLogo,
+  PiThreadsLogo,
+  PiTiktokLogo,
+} from "react-icons/pi";
+import { MdOutlineEmail } from "react-icons/md";
+import { FaQuora, FaXTwitter } from "react-icons/fa6";
+import { LuShare } from "react-icons/lu";
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const shop = await getShopByUrlNameOrThrow(params.shopName);
   return json({ shop });
 }
 
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    { title: `${data?.shop.full_name} | ShopAt.bio` },
+    {
+      name: "description",
+      content: data?.shop.tagline,
+    },
+  ];
+};
+
 export default function ShopLayout() {
   const { shop } = useLoaderData<typeof loader>();
 
+  const shareLink = useCallback(async (data: ShareData) => {
+    if (navigator.share) {
+      await navigator.share(data);
+    } else {
+      console.log("Web Share API not supported.");
+    }
+  }, []);
+
   return (
-    <div>
-      <h1>Shop {shop.full_name}</h1>
-      <Outlet />
+    <div className="w-full max-w-3xl mx-auto border dark:border-gray-500 border-y-0 min-h-screen">
+      {/* Header */}
+      <div className="border border-x-0 dark:border-gray-500 border-t-0">
+        <div className="flex justify-end p-2">
+          <button
+            className="border p-2 rounded-md bg-gray-200 dark:bg-transparent"
+            onClick={() =>
+              shareLink({
+                title: `${shop.full_name}'s shop at ShopAt.bio`,
+                text: shop.tagline ?? "",
+                url: window.location.href,
+              })
+            }
+          >
+            <LuShare className="text-gray-600 dark:text-white" />
+          </button>
+        </div>
+
+        <div className="mt-16 flex justify-center mb-4 mx-2">
+          <img
+            className="rounded-full min-w-24 min-h-24 max-h-48 object-contain"
+            src="https://placehold.co/100"
+            alt={`${shop.url_name}'s logo`}
+          />
+        </div>
+
+        <div className="text-center">
+          <h1 className="text-lg font-bold">{shop.full_name}</h1>
+          <p className="text-sm">{shop.tagline}</p>
+        </div>
+
+        <SocialMediaLinks links={shop.links} className="my-8" />
+      </div>
+
+      {/* Body */}
+      <div className="p-2 overflow-x-hidden min-h-[50vh]">
+        <Outlet />
+      </div>
+
+      {/* Footer */}
+      <div className="border border-x-0 border-b-0 dark:border-gray-500 p-2 py-8">
+        <p className="text-center">
+          Powered by{" "}
+          <a
+            href={`/?utm_source=shopat.bio&utm_medium=shop&utm_campaign=footer_logo_cta&utm_content=${shop.url_name}`}
+            target="_blank"
+            rel="noreferrer"
+            className="underline hover:text-blue-500"
+          >
+            ShopAt.bio
+          </a>
+        </p>
+      </div>
     </div>
   );
+}
+
+type SocialMediaLink = SerializeFrom<InferSelectModel<typeof socialMediaLinks>>;
+
+function SocialMediaLinks({
+  links,
+  className,
+}: {
+  links: SocialMediaLink[];
+  className?: string;
+}) {
+  return (
+    <ul className={clsx("flex space-x-4 justify-center", className)}>
+      {links.map((link) => (
+        <li key={link.id}>
+          <a
+            href={(link.platform === "email" ? "mailto:" : "") + link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            // className="transition-transform "
+          >
+            <PlatformIcon platformName={link.platform} className="h-8 w-8" />
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function PlatformIcon({
+  platformName,
+  className,
+}: {
+  platformName: SocialMediaLink["platform"];
+  className?: string;
+}) {
+  const Icon = useMemo(() => {
+    switch (platformName) {
+      case "email":
+        return MdOutlineEmail;
+      case "facebook":
+        return PiFacebookLogo;
+      case "generic_link":
+        return PiGlobeLight;
+      case "instagram":
+        return PiInstagramLogo;
+      case "linkedin":
+        return PiLinkedinLogo;
+      case "quora":
+        return FaQuora;
+      case "threads":
+        return PiThreadsLogo;
+      case "tiktok":
+        return PiTiktokLogo;
+      case "x":
+        return FaXTwitter;
+      case "youtube":
+        return PiYoutubeLogo;
+    }
+  }, [platformName]);
+
+  return <Icon className={clsx(className)} />;
 }

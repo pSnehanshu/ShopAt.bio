@@ -8,18 +8,23 @@ import {
   integer,
   text,
   unique,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 
 export const shops = pgTable("shops", {
   id: uuid("id").defaultRandom().primaryKey(),
   full_name: varchar("full_name", { length: 255 }).notNull(),
   url_name: varchar("url_name", { length: 255 }).notNull(),
+  tagline: text("tagline").default("Shop at our online store"),
   owner_id: uuid("owner_id")
-    .references(() => users.id)
+    .references(() => users.id, { onDelete: "restrict", onUpdate: "cascade" })
     .notNull()
     .unique(),
   base_currency: varchar("base_currency")
-    .references(() => currencies.symbol)
+    .references(() => currencies.symbol, {
+      onDelete: "restrict",
+      onUpdate: "cascade",
+    })
     .notNull(),
   created_at: timestamp("created_at").defaultNow(),
 });
@@ -31,7 +36,42 @@ export const shopRelations = relations(shops, ({ many, one }) => ({
     fields: [shops.base_currency],
     references: [currencies.symbol],
   }),
+  links: many(socialMediaLinks),
 }));
+
+export const socialMediaPlatformEnum = pgEnum("social_media_platform_enum", [
+  "youtube",
+  "facebook",
+  "instagram",
+  "x",
+  "threads",
+  "tiktok",
+  "linkedin",
+  "quora",
+  "email",
+  "generic_link",
+]);
+
+export const socialMediaLinks = pgTable("social_media_links", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  shop_id: uuid("shop_id")
+    .references(() => shops.id, { onDelete: "cascade", onUpdate: "cascade" })
+    .notNull(),
+  platform: socialMediaPlatformEnum("platform").notNull(),
+  url: text("url").notNull(),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const socialMediaLinkRelations = relations(
+  socialMediaLinks,
+  ({ one }) => ({
+    shop: one(shops, {
+      fields: [socialMediaLinks.shop_id],
+      references: [shops.id],
+    }),
+  })
+);
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -71,7 +111,7 @@ export const products = pgTable(
     description: text("description"),
     is_visible: boolean("is_visible").default(true),
     shop_id: uuid("shop_id")
-      .references(() => shops.id)
+      .references(() => shops.id, { onDelete: "cascade", onUpdate: "cascade" })
       .notNull(),
     qty: integer("qty").default(0),
     price: integer("price").notNull(),
@@ -92,7 +132,7 @@ export const productPhotos = pgTable("product_photos", {
   is_visible: boolean("is_visible").default(true),
   caption: varchar("caption", { length: 255 }),
   product_id: uuid("product_id")
-    .references(() => products.id)
+    .references(() => products.id, { onDelete: "cascade", onUpdate: "cascade" })
     .notNull(),
   file_path: varchar("file_path").generatedAlwaysAs(
     (): SQL =>
