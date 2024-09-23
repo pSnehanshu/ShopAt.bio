@@ -10,7 +10,7 @@ import { session } from "~/utils/cookies";
 import { FaFacebook, FaGoogle, FaEnvelope } from "react-icons/fa6";
 import { SlSocialInstagram } from "react-icons/sl";
 import { IoIosArrowBack } from "react-icons/io";
-import { getAuthInfo } from "~/utils/auth";
+import { getAuthInfo } from "~/utils/auth.server";
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
