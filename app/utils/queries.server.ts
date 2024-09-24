@@ -3,8 +3,13 @@ import { users } from "db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import { DecodedIdToken } from "firebase-admin/auth";
 import invariant from "tiny-invariant";
-import { session } from "~/utils/cookies";
+import {
+  session,
+  shoppingCart,
+  ShoppingCartCookieSchema,
+} from "~/utils/cookies.server";
 import { getFileURL, serverAuth } from "~/firebase.server";
+import * as v from "valibot";
 
 type AuthInfo =
   | {
@@ -107,4 +112,78 @@ export async function getHomepageProducts(shopId: string) {
     ...p,
     photoUrl: getFileURL(p.photos.at(0)?.path),
   }));
+}
+
+/** Get contents of shopping cart */
+export async function parseShoppingCartCookie(request: Request) {
+  const shoppingCartCookie = await shoppingCart.parse(
+    request.headers.get("Cookie")
+  );
+
+  const cartContentParseResult = v.safeParse(
+    ShoppingCartCookieSchema,
+    shoppingCartCookie
+  );
+
+  if (!cartContentParseResult.success) {
+    console.warn(
+      "Cart content couldn't be parsed",
+      cartContentParseResult.issues
+    );
+  }
+
+  return cartContentParseResult.success ? cartContentParseResult.output : null;
+}
+
+export async function addToShoppingCart(
+  request: Request,
+  productUrlName: string,
+  shopUrlName: string,
+  operation: "add" | "remove"
+): Promise<string> {
+  const existingCart = await parseShoppingCartCookie(request);
+  const shop = await getShopByUrlNameOrThrow(shopUrlName);
+  const product = await getProductByUrlNameOrThrow(shop.id, productUrlName);
+  const productId = product.id;
+
+  if (!existingCart) {
+    if (operation === "add") {
+      const cart: v.InferOutput<typeof ShoppingCartCookieSchema> = {
+        [shop.id]: [{ productId, qty: 1 }],
+      };
+
+      return shoppingCart.serialize(cart);
+    } else {
+      return shoppingCart.serialize(null);
+    }
+  }
+
+  if (existingCart[shop.id]) {
+    const products = existingCart[shop.id];
+
+    const thisProductIndex = products.findIndex(
+      (p) => p.productId === productId
+    );
+
+    if (thisProductIndex < 0) {
+      if (operation === "add") {
+        products.push({ productId, qty: 1 });
+      }
+    } else {
+      if (operation === "add") {
+        products[thisProductIndex].qty++;
+      } else {
+        products[thisProductIndex].qty--;
+        if (products[thisProductIndex].qty <= 0) {
+          products.splice(thisProductIndex, 1);
+        }
+      }
+    }
+  } else {
+    if (operation === "add") {
+      existingCart[shop.id] = [{ productId, qty: 1 }];
+    }
+  }
+
+  return shoppingCart.serialize(existingCart);
 }

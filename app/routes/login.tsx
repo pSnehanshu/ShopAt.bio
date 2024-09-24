@@ -6,7 +6,7 @@ import { serverAuth } from "~/firebase.server";
 import { ActionFunction, LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { redirect, useFetcher } from "@remix-run/react";
-import { session } from "~/utils/cookies";
+import { session } from "~/utils/cookies.server";
 import { FaFacebook, FaGoogle, FaEnvelope } from "react-icons/fa6";
 import { SlSocialInstagram } from "react-icons/sl";
 import { IoIosArrowBack } from "react-icons/io";
