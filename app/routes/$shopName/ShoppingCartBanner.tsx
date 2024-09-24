@@ -50,7 +50,9 @@ export function ShoppingCartBanner({
         <p className="text-sm">
           There are {productsInCookie.length} product(s) in your cart.
         </p>
-        <p className="text-xl font-bold">{priceToDisplay}</p>
+        <p className="text-xl font-bold">
+          {priceToDisplay} <span className="text-sm font-normal">+ taxes</span>
+        </p>
       </div>
 
       <Link

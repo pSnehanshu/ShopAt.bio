@@ -11,6 +11,8 @@ import {
 import { getFileURL, serverAuth } from "~/firebase.server";
 import * as v from "valibot";
 
+const defaultProductPhotoUrl = "https://placehold.co/600x400";
+
 type AuthInfo =
   | {
       token: DecodedIdToken;
@@ -128,7 +130,7 @@ export async function getHomepageProducts(
 
   return products.map((p) => ({
     ...p,
-    photoUrl: getFileURL(p.photos.at(0)?.path),
+    photoUrl: getFileURL(p.photos.at(0)?.path) ?? defaultProductPhotoUrl,
   }));
 }
 
@@ -221,6 +223,6 @@ export async function getProducts(productIds: string[], shopId: string) {
 
   return products.map((p) => ({
     ...p,
-    photoUrl: getFileURL(p.photos.at(0)?.path),
+    photoUrl: getFileURL(p.photos.at(0)?.path) ?? defaultProductPhotoUrl,
   }));
 }

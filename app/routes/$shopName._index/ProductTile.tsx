@@ -41,7 +41,7 @@ export function ProductTile({
     >
       <Link to={link}>
         <img
-          src={product.photoUrl ?? "https://placehold.co/600x400"}
+          src={product.photoUrl}
           alt={`Illustration of ${product.name}`}
           className="w-full h-72 object-cover object-center"
         />

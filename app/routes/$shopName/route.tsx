@@ -4,7 +4,7 @@ import {
   type LoaderFunctionArgs,
   type MetaFunction,
 } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import { Link, Outlet, useLoaderData, useLocation } from "@remix-run/react";
 import {
   getProducts,
   getShopByUrlNameOrThrow,
@@ -42,6 +42,8 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export default function ShopLayout() {
+  const location = useLocation();
+
   const { shop, shoppingCartContent, shoppinCartProducts } =
     useLoaderData<typeof loader>();
 
@@ -102,15 +104,19 @@ export default function ShopLayout() {
           </div>
 
           <div className="mt-16 flex justify-center mb-4 mx-2">
-            <img
-              className="rounded-full w-24 min-h-24 object-contain border"
-              src={shop.iconUrl ?? "https://placehold.co/100"}
-              alt={`${shop.url_name}'s logo`}
-            />
+            <Link to=".">
+              <img
+                className="rounded-full w-24 min-h-24 object-contain border"
+                src={shop.iconUrl ?? "https://placehold.co/100"}
+                alt={`${shop.url_name}'s logo`}
+              />
+            </Link>
           </div>
 
           <div className="text-center">
-            <h1 className="text-lg font-bold">{shop.full_name}</h1>
+            <Link to="." className="hover:underline">
+              <h1 className="text-lg font-bold">{shop.full_name}</h1>
+            </Link>
             <p className="text-sm">{shop.tagline}</p>
           </div>
 
@@ -138,12 +144,14 @@ export default function ShopLayout() {
         </div>
       </div>
 
-      {/* shopping cart banner */}
-      <ShoppingCartBanner
-        shop={shop}
-        cartContent={shoppingCartContent}
-        productsInfo={shoppinCartProducts}
-      />
+      {/* shopping cart banner (don't show on the cart page) */}
+      {!location.pathname.endsWith("/cart") && (
+        <ShoppingCartBanner
+          shop={shop}
+          cartContent={shoppingCartContent}
+          productsInfo={shoppinCartProducts}
+        />
+      )}
     </>
   );
 }
