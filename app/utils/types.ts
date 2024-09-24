@@ -1,0 +1,3 @@
+/** Given an array type, gives the type of a single element */
+export type ArrayElement<ArrayType extends readonly unknown[]> =
+  ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
