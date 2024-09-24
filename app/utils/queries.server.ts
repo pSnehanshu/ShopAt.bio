@@ -94,7 +94,25 @@ export async function getProductByUrlNameOrThrow(
   return product;
 }
 
-export async function getHomepageProducts(shopId: string) {
+export async function getProductById(
+  productId: string | null | undefined
+): ReturnType<typeof getProductByUrlNameOrThrow> {
+  invariant(productId, "expected productId");
+
+  const product = await db.query.products.findFirst({
+    where: (fields, { eq }) => eq(fields.id, productId),
+  });
+
+  if (!product) {
+    throw new Response("Not Found", { status: 404 });
+  }
+
+  return product;
+}
+
+export async function getHomepageProducts(
+  shopId: string
+): ReturnType<typeof getProducts> {
   const products = await db.query.products.findMany({
     where: (fields, { eq, and }) =>
       and(eq(fields.is_visible, true), eq(fields.shop_id, shopId)),
@@ -186,4 +204,23 @@ export async function addToShoppingCart(
   }
 
   return shoppingCart.serialize(existingCart);
+}
+
+export async function getProducts(productIds: string[], shopId: string) {
+  const products = await db.query.products.findMany({
+    where: (fields, { eq, inArray, and }) =>
+      and(eq(fields.shop_id, shopId), inArray(fields.id, productIds)),
+    with: {
+      photos: {
+        where: (fields, { eq }) => eq(fields.is_main, true),
+        limit: 1,
+        orderBy: (fields, { desc }) => desc(fields.created_at),
+      },
+    },
+  });
+
+  return products.map((p) => ({
+    ...p,
+    photoUrl: getFileURL(p.photos.at(0)?.path),
+  }));
 }

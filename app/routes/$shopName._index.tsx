@@ -8,8 +8,6 @@ import {
   parseShoppingCartCookie,
 } from "~/utils/queries.server";
 import { PiShoppingCartFill } from "react-icons/pi";
-import { InferOutput } from "valibot";
-import { ShoppingCartCookieSchema } from "~/utils/cookies.server";
 import { MdRemove, MdAdd } from "react-icons/md";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
@@ -19,6 +17,8 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
   return json({ shop, products, shoppingCartContent });
 }
+
+type LoaderDataType = SerializeFrom<typeof loader>;
 
 export default function Index() {
   const { products, shop, shoppingCartContent } =
@@ -42,11 +42,8 @@ export default function Index() {
 type ArrayElement<ArrayType extends readonly unknown[]> =
   ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 
-type Product = SerializeFrom<
-  ArrayElement<Awaited<ReturnType<typeof getHomepageProducts>>>
->;
-
-type Shop = SerializeFrom<Awaited<ReturnType<typeof getShopByUrlNameOrThrow>>>;
+type Product = ArrayElement<LoaderDataType["products"]>;
+type CartContent = LoaderDataType["shoppingCartContent"];
 
 function ProductTile({
   product,
@@ -55,9 +52,9 @@ function ProductTile({
   cartContent,
 }: {
   product: Product;
-  shop: Shop;
+  shop: LoaderDataType["shop"];
   className?: string;
-  cartContent: InferOutput<typeof ShoppingCartCookieSchema> | null;
+  cartContent: CartContent;
 }) {
   const price = useMemo(() => {
     const price = product.price / shop.base_currency_info.multiplier;
@@ -115,7 +112,7 @@ function AddToCartBtn({
   cartContent,
 }: {
   product: Product;
-  cartContent: InferOutput<typeof ShoppingCartCookieSchema> | null;
+  cartContent: CartContent;
 }) {
   const isInStock = product.qty >= 1;
   const fetcher = useFetcher();

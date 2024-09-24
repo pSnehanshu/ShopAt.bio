@@ -8,6 +8,7 @@ import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import type { socialMediaLinks } from "db/schema";
 import { InferSelectModel } from "drizzle-orm";
 import {
+  getProducts,
   getShopByUrlNameOrThrow,
   parseShoppingCartCookie,
 } from "~/utils/queries.server";
@@ -34,8 +35,16 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const shop = await getShopByUrlNameOrThrow(params.shopName);
   const shoppingCartContent = await parseShoppingCartCookie(request);
 
-  return json({ shop, shoppingCartContent });
+  const productsInCart = shoppingCartContent?.[shop.id] ?? [];
+  const shoppinCartProducts = await getProducts(
+    productsInCart.map((p) => p.productId),
+    shop.id
+  );
+
+  return json({ shop, shoppingCartContent, shoppinCartProducts });
 }
+
+type LoaderDataType = SerializeFrom<typeof loader>;
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
@@ -48,7 +57,8 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export default function ShopLayout() {
-  const { shop, shoppingCartContent } = useLoaderData<typeof loader>();
+  const { shop, shoppingCartContent, shoppinCartProducts } =
+    useLoaderData<typeof loader>();
 
   const shareLink = useCallback(async (data: ShareData) => {
     if (navigator.share) {
@@ -144,7 +154,11 @@ export default function ShopLayout() {
       </div>
 
       {/* shopping cart banner */}
-      <ShoppingCartBanner cartContent={shoppingCartContent} shopId={shop.id} />
+      <ShoppingCartBanner
+        shop={shop}
+        cartContent={shoppingCartContent}
+        productsInfo={shoppinCartProducts}
+      />
     </>
   );
 }
@@ -235,26 +249,49 @@ function ShoppingCartButton({
 
 function ShoppingCartBanner({
   cartContent,
-  shopId,
+  productsInfo,
+  shop,
 }: {
-  cartContent: InferOutput<typeof ShoppingCartCookieSchema> | null;
-  shopId: string;
+  cartContent: LoaderDataType["shoppingCartContent"];
+  productsInfo: LoaderDataType["shoppinCartProducts"];
+  shop: LoaderDataType["shop"];
 }) {
-  const products = cartContent?.[shopId] ?? [];
-
+  const productsInCookie = cartContent?.[shop.id] ?? [];
   let total = 0;
-  products.forEach((p) => {
+  productsInCookie.forEach((p) => {
     total += p.qty;
   });
+
+  let totalCost = 0;
+  productsInfo.forEach((p) => {
+    const prodInCookie = productsInCookie.find((pc) => pc.productId === p.id);
+    const qty = prodInCookie?.qty ?? 0;
+
+    totalCost += p.price * qty;
+  });
+
+  const priceToDisplay = useMemo(() => {
+    const multiplier = shop.base_currency_info.multiplier ?? 1;
+    const price = totalCost / multiplier;
+    const sym = shop.base_currency ?? "";
+    const formatting = shop.base_currency_info.formatting ?? `${sym} ?`;
+    return formatting.replace("?", price.toLocaleString());
+  }, [
+    shop.base_currency,
+    shop.base_currency_info.formatting,
+    shop.base_currency_info.multiplier,
+    totalCost,
+  ]);
 
   if (total <= 0) {
     return <></>;
   }
 
   return (
-    <div className="grid grid-cols-6 min-h-16 fixed bottom-0 md:bottom-5 left-1/2 transform -translate-x-1/2 w-full md:max-w-xl shadow-xl bg-[#ff527b] bg-opacity-70 backdrop-blur-sm md:rounded-xl p-2">
+    <div className="grid grid-cols-6 min-h-16 fixed bottom-0 md:bottom-5 left-1/2 transform -translate-x-1/2 w-full md:max-w-xl shadow-xl bg-[#1b881a] bg-opacity-70 backdrop-blur-sm md:rounded-xl p-2">
       <div className="col-span-4 text-white p-2">
-        There are {total} items are in your cart
+        There are {productsInCookie.length} products are in your cart (Cost:{" "}
+        {priceToDisplay})
       </div>
 
       <Link

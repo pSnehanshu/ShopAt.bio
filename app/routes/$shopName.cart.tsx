@@ -1,6 +1,11 @@
-import { ActionFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, json, LoaderFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
-import { addToShoppingCart } from "~/utils/queries.server";
+import {
+  addToShoppingCart,
+  getProducts,
+  getShopByUrlNameOrThrow,
+  parseShoppingCartCookie,
+} from "~/utils/queries.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -22,6 +27,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
   );
 
   return json(null, { headers: { "Set-Cookie": cookie } });
+}
+
+export async function loader({ params, request }: LoaderFunctionArgs) {
+  const shop = await getShopByUrlNameOrThrow(params.shopName);
+  const shoppingCartContent = await parseShoppingCartCookie(request);
+
+  const productsInCart = shoppingCartContent?.[shop.id] ?? [];
+  const products = await getProducts(
+    productsInCart.map((p) => p.productId),
+    shop.id
+  );
+
+  return json({ products, shop });
 }
 
 export default function ShoppingCart() {
