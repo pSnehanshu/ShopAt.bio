@@ -26,7 +26,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
     operation?.toString() === "remove" ? "remove" : "add"
   );
 
-  return json(null, { headers: { "Set-Cookie": cookie } });
+  return new Response(null, {
+    headers: { "Set-Cookie": cookie },
+    status: 201,
+  });
 }
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
