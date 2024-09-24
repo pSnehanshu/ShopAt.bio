@@ -48,7 +48,7 @@ export function ProductTile({
       </Link>
 
       <div className="p-2 bg-white bg-opacity-40 grid grid-cols-4 gap-2 justify-between">
-        <div className="col-span-3">
+        <div className="col-span-2 md:col-span-3">
           <Link to={link} className="hover:underline">
             <h2 className="text-md font-bold text-nowrap text-ellipsis overflow-hidden">
               {product.name}
@@ -56,7 +56,7 @@ export function ProductTile({
           </Link>
           <span className="text-xs">{price}</span>
         </div>
-        <div className="p-1">
+        <div className="p-1 col-span-2 md:col-span-1">
           <AddToCartBtn product={product} cartContent={cartContent} />
         </div>
       </div>

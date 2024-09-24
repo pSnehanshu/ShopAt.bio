@@ -36,19 +36,19 @@ export function AddToCartBtn({
           <div className="grid grid-cols-2 h-10 transition-all rounded-xl overflow-hidden shadow-md text-white">
             <button
               type="submit"
-              className="bg-[#1b881a] hover:bg-[#146113] hover:shadow-xl transition-all"
+              className="bg-[#1b881a] hover:bg-[#146113] hover:shadow-xl transition-all flex justify-center items-center"
               name="operation"
               value="remove"
             >
-              <MdRemove className="relative left-2" />
+              <MdRemove />
             </button>
             <button
               type="submit"
-              className="bg-[#1b881a] hover:bg-[#146113] hover:shadow-xl transition-all"
+              className="bg-[#1b881a] hover:bg-[#146113] hover:shadow-xl transition-all  flex justify-center items-center"
               name="operation"
               value="add"
             >
-              <MdAdd className="relative left-1" />
+              <MdAdd />
             </button>
           </div>
           <div className="text-xs text-center text-green-600 mt-1">
@@ -58,7 +58,7 @@ export function AddToCartBtn({
       ) : (
         <button
           className={clsx(
-            "h-10 flex space-x-1 p-2 transition-all rounded-xl shadow-md text-white",
+            "h-10 w-full flex space-x-1 justify-center p-2 transition-all rounded-xl shadow-md text-white",
             isInStock
               ? "bg-[#1b881a] hover:bg-[#146113] hover:shadow-xl"
               : "bg-gray-300 cursor-not-allowed"
