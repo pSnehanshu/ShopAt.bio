@@ -15,6 +15,7 @@ import { LuShare } from "react-icons/lu";
 import { SocialMediaLinks } from "./SocialMediaLinks";
 import { ShoppingCartBanner } from "./ShoppingCartBanner";
 import { ShoppingCartButton } from "./ShoppingCartButton";
+import { getUserLocale } from "~/utils/misc";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const shop = await getShopByUrlNameOrThrow(params.shopName);
@@ -26,7 +27,9 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     shop.id
   );
 
-  return json({ shop, shoppingCartContent, shoppinCartProducts });
+  const locale = getUserLocale(request.headers.get("Accept-Language"));
+
+  return json({ shop, shoppingCartContent, shoppinCartProducts, locale });
 }
 
 export type LoaderDataType = SerializeFrom<typeof loader>;
@@ -44,7 +47,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export default function ShopLayout() {
   const location = useLocation();
 
-  const { shop, shoppingCartContent, shoppinCartProducts } =
+  const { shop, shoppingCartContent, shoppinCartProducts, locale } =
     useLoaderData<typeof loader>();
 
   const shareLink = useCallback(async (data: ShareData) => {
@@ -81,7 +84,7 @@ export default function ShopLayout() {
         <div
           className="border border-x-0 border-t-0 bg-cover bg-no-repeat"
           style={{
-            backgroundImage: `url(${shop.coverUrl})` ?? "",
+            backgroundImage: `url(${shop.coverUrl ?? ""})`,
           }}
         >
           <div className="flex justify-between p-2">
@@ -150,6 +153,7 @@ export default function ShopLayout() {
           shop={shop}
           cartContent={shoppingCartContent}
           productsInfo={shoppinCartProducts}
+          locale={locale}
         />
       )}
     </>

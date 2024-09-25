@@ -8,10 +8,12 @@ export function ShoppingCartBanner({
   cartContent,
   productsInfo,
   shop,
+  locale,
 }: {
   cartContent: LoaderDataType["shoppingCartContent"];
   productsInfo: LoaderDataType["shoppinCartProducts"];
   shop: LoaderDataType["shop"];
+  locale: string;
 }) {
   const productsInCookie = cartContent?.[shop.id] ?? [];
   let total = 0;
@@ -34,7 +36,8 @@ export function ShoppingCartBanner({
   const priceToDisplay = getCurrencyAmtFormatted(
     totalCost,
     shop.base_currency_info.multiplier,
-    shop.base_currency
+    shop.base_currency,
+    locale
   );
 
   return (

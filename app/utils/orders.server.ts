@@ -19,7 +19,8 @@ interface OrderPriceSummary {
 
 export async function getOrderPriceSummary(
   cartContent: InferOutput<typeof ShoppingCartCookieSchema> | null,
-  shopUrlName: string
+  shopUrlName: string,
+  locale: string
 ): Promise<OrderPriceSummary> {
   const shop = await getShopByUrlNameOrThrow(shopUrlName);
   const cart = cartContent?.[shop.id] ?? [];
@@ -44,19 +45,35 @@ export async function getOrderPriceSummary(
 
   return {
     subtotal,
-    subtotalDisplay: getCurrencyAmtFormatted(subtotal, multiplier, symbol),
+    subtotalDisplay: getCurrencyAmtFormatted(
+      subtotal,
+      multiplier,
+      symbol,
+      locale
+    ),
 
     taxAmount,
-    taxAmountDisplay: getCurrencyAmtFormatted(taxAmount, multiplier, symbol),
+    taxAmountDisplay: getCurrencyAmtFormatted(
+      taxAmount,
+      multiplier,
+      symbol,
+      locale
+    ),
 
     deliveryAmount,
     deliveryAmountDisplay: getCurrencyAmtFormatted(
       deliveryAmount,
       multiplier,
-      symbol
+      symbol,
+      locale
     ),
 
     grandtotal,
-    grandtotalDisplay: getCurrencyAmtFormatted(grandtotal, multiplier, symbol),
+    grandtotalDisplay: getCurrencyAmtFormatted(
+      grandtotal,
+      multiplier,
+      symbol,
+      locale
+    ),
   };
 }

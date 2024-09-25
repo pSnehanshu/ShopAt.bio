@@ -8,7 +8,7 @@ import { Form, Link, useLoaderData } from "@remix-run/react";
 import clsx from "clsx";
 import { MdAdd, MdRemove } from "react-icons/md";
 import invariant from "tiny-invariant";
-import { getCurrencyAmtFormatted } from "~/utils/misc";
+import { getCurrencyAmtFormatted, getUserLocale } from "~/utils/misc";
 import { getOrderPriceSummary } from "~/utils/orders.server";
 import {
   addToShoppingCart,
@@ -46,9 +46,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const shop = await getShopByUrlNameOrThrow(params.shopName);
   const shoppingCartContent = await parseShoppingCartCookie(request);
+  const locale = getUserLocale(request.headers.get("Accept-Language"));
+
   const priceSummary = await getOrderPriceSummary(
     shoppingCartContent,
-    shop.url_name
+    shop.url_name,
+    locale
   );
 
   const productsInCart = shoppingCartContent?.[shop.id] ?? [];
@@ -57,13 +60,13 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     shop.id
   );
 
-  return json({ shoppingCartContent, products, shop, priceSummary });
+  return json({ shoppingCartContent, products, shop, priceSummary, locale });
 }
 
 type LoaderDataType = SerializeFrom<typeof loader>;
 
 export default function ShoppingCart() {
-  const { products, shop, shoppingCartContent, priceSummary } =
+  const { products, shop, shoppingCartContent, priceSummary, locale } =
     useLoaderData<typeof loader>();
 
   return (
@@ -86,6 +89,7 @@ export default function ShoppingCart() {
                   product={product}
                   shop={shop}
                   cartContent={shoppingCartContent}
+                  locale={locale}
                 />
               </li>
             ))}
@@ -126,10 +130,12 @@ function ProductTile({
   product,
   shop,
   cartContent,
+  locale,
 }: {
   product: Product;
   cartContent: LoaderDataType["shoppingCartContent"];
   shop: LoaderDataType["shop"];
+  locale: string;
 }) {
   const qty =
     cartContent?.[shop.id].find((p) => p.productId === product.id)?.qty ?? 0;
@@ -139,7 +145,8 @@ function ProductTile({
   const totalCost = getCurrencyAmtFormatted(
     product.price * qty,
     shop.base_currency_info.multiplier,
-    shop.base_currency
+    shop.base_currency,
+    locale
   );
 
   return (

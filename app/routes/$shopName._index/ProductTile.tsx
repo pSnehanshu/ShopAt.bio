@@ -13,16 +13,19 @@ export function ProductTile({
   shop,
   className,
   cartContent,
+  locale,
 }: {
   product: Product;
   shop: LoaderDataType["shop"];
   className?: string;
   cartContent: CartContent;
+  locale: string;
 }) {
   const price = getCurrencyAmtFormatted(
     product.price,
     shop.base_currency_info.multiplier,
-    shop.base_currency
+    shop.base_currency,
+    locale
   );
 
   const link = `p/${product.url_name}`;
