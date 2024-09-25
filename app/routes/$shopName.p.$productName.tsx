@@ -1,4 +1,4 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { getCurrencyAmtFormatted, getUserLocale } from "~/utils/misc";
 import {
@@ -29,6 +29,13 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
   return json({ product, shop, shoppingCartContent, locale });
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => [
+  {
+    title: `${data?.product.name} | ${data?.shop.full_name} | ShopAt.bio`,
+    description: data?.product.description,
+  },
+];
 
 export default function Index() {
   const { product, shop, shoppingCartContent, locale } =

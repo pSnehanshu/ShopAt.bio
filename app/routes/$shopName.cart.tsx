@@ -2,6 +2,7 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
+  MetaFunction,
   SerializeFrom,
 } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
@@ -64,6 +65,12 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 type LoaderDataType = SerializeFrom<typeof loader>;
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => [
+  {
+    title: `Shopping Cart | ${data?.shop.full_name} | ShopAt.bio`,
+  },
+];
 
 export default function ShoppingCart() {
   const { products, shop, shoppingCartContent, priceSummary, locale } =
