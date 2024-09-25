@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { MdAdd, MdRemove } from "react-icons/md";
 import { PiShoppingCartFill } from "react-icons/pi";
-import { LoaderDataType } from "./route";
+import { LoaderDataType } from "../routes/$shopName._index/route";
 import { ArrayElement } from "~/utils/types";
 import { useFetcher } from "@remix-run/react";
 import { useMemo } from "react";
@@ -12,9 +12,13 @@ type CartContent = LoaderDataType["shoppingCartContent"];
 export function AddToCartBtn({
   product,
   cartContent,
+  cartLocation,
+  btnTextFull = false,
 }: {
   product: Product;
   cartContent: CartContent;
+  cartLocation: string;
+  btnTextFull?: boolean;
 }) {
   const isInStock = product.qty >= 1;
   const fetcher = useFetcher();
@@ -28,7 +32,7 @@ export function AddToCartBtn({
   const isAddedToCart = qtyInCart > 0;
 
   return (
-    <fetcher.Form method="post" action="cart">
+    <fetcher.Form method="post" action={cartLocation}>
       <input type="hidden" name="product_url_name" value={product.url_name} />
 
       {isAddedToCart ? (
@@ -36,19 +40,32 @@ export function AddToCartBtn({
           <div className="grid grid-cols-2 h-10 transition-all rounded-xl overflow-hidden shadow-md text-white">
             <button
               type="submit"
-              className="bg-[#1b881a] hover:bg-[#146113] hover:shadow-xl transition-all flex justify-center items-center"
+              className="bg-[#1b881a] hover:bg-[#146113] hover:shadow-xl transition-all flex justify-center gap-2 items-center"
               name="operation"
               value="remove"
             >
-              <MdRemove />
+              {btnTextFull ? (
+                <>
+                  <MdRemove /> <span>Remove 1</span>
+                </>
+              ) : (
+                <MdRemove />
+              )}
             </button>
             <button
               type="submit"
-              className="bg-[#1b881a] hover:bg-[#146113] hover:shadow-xl transition-all  flex justify-center items-center"
+              className="bg-[#1b881a] hover:bg-[#146113] hover:shadow-xl transition-all flex justify-center gap-2 items-center"
               name="operation"
               value="add"
             >
-              <MdAdd />
+              {btnTextFull ? (
+                <>
+                  <MdAdd />
+                  <span>Add 1</span>
+                </>
+              ) : (
+                <MdAdd />
+              )}
             </button>
           </div>
           <div className="text-xs text-center text-green-600 mt-1">
@@ -75,7 +92,7 @@ export function AddToCartBtn({
               "text-sm top-1 relative"
             )}
           >
-            Add
+            {btnTextFull ? "Add to cart" : "Add"}
           </span>
         </button>
       )}

@@ -87,13 +87,17 @@ export async function getProductByUrlNameOrThrow(
   const product = await db.query.products.findFirst({
     where: (fields, { eq, and }) =>
       and(eq(fields.url_name, productUrlName), eq(fields.shop_id, shopId)),
+    with: { photos: true },
   });
 
   if (!product) {
     throw new Response("Not Found", { status: 404 });
   }
 
-  return product;
+  return {
+    ...product,
+    photoUrl: getFileURL(product.photos.at(0)?.path) ?? defaultProductPhotoUrl,
+  };
 }
 
 export async function getProductById(
@@ -103,13 +107,17 @@ export async function getProductById(
 
   const product = await db.query.products.findFirst({
     where: (fields, { eq }) => eq(fields.id, productId),
+    with: { photos: true },
   });
 
   if (!product) {
     throw new Response("Not Found", { status: 404 });
   }
 
-  return product;
+  return {
+    ...product,
+    photoUrl: getFileURL(product.photos.at(0)?.path) ?? defaultProductPhotoUrl,
+  };
 }
 
 export async function getHomepageProducts(

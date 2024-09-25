@@ -2,7 +2,7 @@ import type { LoaderDataType } from "./route";
 import clsx from "clsx";
 import { Link } from "@remix-run/react";
 import { ArrayElement } from "~/utils/types";
-import { AddToCartBtn } from "./AddToCartBtn";
+import { AddToCartBtn } from "~/components/AddToCartBtn";
 import { getCurrencyAmtFormatted } from "~/utils/misc";
 
 type Product = ArrayElement<LoaderDataType["products"]>;
@@ -56,7 +56,11 @@ export function ProductTile({
           <span className="text-xs">{price}</span>
         </div>
         <div className="p-1 col-span-2 md:col-span-1">
-          <AddToCartBtn product={product} cartContent={cartContent} />
+          <AddToCartBtn
+            product={product}
+            cartContent={cartContent}
+            cartLocation="cart"
+          />
         </div>
       </div>
 
