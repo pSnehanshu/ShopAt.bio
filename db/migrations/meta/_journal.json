@@ -78,6 +78,34 @@
       "when": 1727108007997,
       "tag": "0010_misty_red_hulk",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1727261689719,
+      "tag": "0011_useful_phantom_reporter",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1727261874370,
+      "tag": "0012_soft_big_bertha",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1727288616855,
+      "tag": "0013_luxuriant_magneto",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1727289150506,
+      "tag": "0014_sad_forgotten_one",
+      "breakpoints": true
     }
   ]
 }

@@ -1,8 +1,8 @@
-import { useMemo } from "react";
 import type { LoaderDataType } from "./route";
 import { Link } from "@remix-run/react";
 import { PiShoppingCartFill } from "react-icons/pi";
 import { FaArrowRight } from "react-icons/fa6";
+import { getCurrencyAmtFormatted } from "~/utils/misc";
 
 export function ShoppingCartBanner({
   cartContent,
@@ -27,22 +27,15 @@ export function ShoppingCartBanner({
     totalCost += p.price * qty;
   });
 
-  const priceToDisplay = useMemo(() => {
-    const multiplier = shop.base_currency_info.multiplier ?? 1;
-    const price = totalCost / multiplier;
-    const sym = shop.base_currency ?? "";
-    const formatting = shop.base_currency_info.formatting ?? `${sym} ?`;
-    return formatting.replace("?", price.toLocaleString());
-  }, [
-    shop.base_currency,
-    shop.base_currency_info.formatting,
-    shop.base_currency_info.multiplier,
-    totalCost,
-  ]);
-
   if (total <= 0) {
     return <></>;
   }
+
+  const priceToDisplay = getCurrencyAmtFormatted(
+    totalCost,
+    shop.base_currency_info.multiplier,
+    shop.base_currency
+  );
 
   return (
     <div className="grid grid-cols-6 min-h-16 fixed bottom-0 md:bottom-5 left-1/2 transform -translate-x-1/2 w-full md:max-w-xl shadow-xl bg-[#1b881a] bg-opacity-70 backdrop-blur-sm md:rounded-xl p-2">

@@ -9,6 +9,7 @@ import {
   text,
   unique,
   pgEnum,
+  numeric,
 } from "drizzle-orm/pg-core";
 
 export const shops = pgTable("shops", {
@@ -25,6 +26,9 @@ export const shops = pgTable("shops", {
       onDelete: "restrict",
       onUpdate: "cascade",
     })
+    .notNull(),
+  default_tax_rate: numeric("default_tax_rate", { precision: 5, scale: 2 })
+    .default("0.00")
     .notNull(),
   icon_path: varchar("icon_path", { length: 255 }),
   cover_path: varchar("cover_path", { length: 255 }),
@@ -94,10 +98,6 @@ export const currencies = pgTable("currencies", {
   ),
   multiplier: integer("multiplier").notNull(),
   one_usd_val: integer("one_usd_val").default(1).notNull(),
-  /** Can be of format `$?` or `₹?` or `? EUR`, where ? is the placeholder for the amount */
-  formatting: varchar("formatting", { length: 10 })
-    .$default((): SQL => sql`${currencies.symbol} ?`)
-    .notNull(),
   created_at: timestamp("created_at").defaultNow(),
 });
 
@@ -118,6 +118,7 @@ export const products = pgTable(
       .notNull(),
     qty: integer("qty").default(0).notNull(),
     price: integer("price").notNull(),
+    tax_rate: numeric("tax_rate", { precision: 5, scale: 2 }),
     created_at: timestamp("created_at").defaultNow(),
   },
   (t) => ({

@@ -1,9 +1,9 @@
-import { useMemo } from "react";
 import type { LoaderDataType } from "./route";
 import clsx from "clsx";
 import { Link } from "@remix-run/react";
 import { ArrayElement } from "~/utils/types";
 import { AddToCartBtn } from "./AddToCartBtn";
+import { getCurrencyAmtFormatted } from "~/utils/misc";
 
 type Product = ArrayElement<LoaderDataType["products"]>;
 type CartContent = LoaderDataType["shoppingCartContent"];
@@ -19,15 +19,11 @@ export function ProductTile({
   className?: string;
   cartContent: CartContent;
 }) {
-  const price = useMemo(() => {
-    const price = product.price / shop.base_currency_info.multiplier;
-    const formatting = shop.base_currency_info.formatting;
-    return formatting.replace("?", price.toLocaleString());
-  }, [
+  const price = getCurrencyAmtFormatted(
     product.price,
-    shop.base_currency_info.formatting,
     shop.base_currency_info.multiplier,
-  ]);
+    shop.base_currency
+  );
 
   const link = `p/${product.url_name}`;
   const isInStock = product.qty >= 1;

@@ -6,16 +6,17 @@ import {
 } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import clsx from "clsx";
-import { useMemo } from "react";
 import { MdAdd, MdRemove } from "react-icons/md";
 import invariant from "tiny-invariant";
+import { getCurrencyAmtFormatted } from "~/utils/misc";
+import { getOrderPriceSummary } from "~/utils/orders.server";
 import {
   addToShoppingCart,
   getProducts,
   getShopByUrlNameOrThrow,
   parseShoppingCartCookie,
 } from "~/utils/queries.server";
-import { ArrayElement } from "~/utils/types";
+import type { ArrayElement } from "~/utils/types";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -45,6 +46,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const shop = await getShopByUrlNameOrThrow(params.shopName);
   const shoppingCartContent = await parseShoppingCartCookie(request);
+  const priceSummary = await getOrderPriceSummary(
+    shoppingCartContent,
+    shop.url_name
+  );
 
   const productsInCart = shoppingCartContent?.[shop.id] ?? [];
   const products = await getProducts(
@@ -52,13 +57,13 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     shop.id
   );
 
-  return json({ shoppingCartContent, products, shop });
+  return json({ shoppingCartContent, products, shop, priceSummary });
 }
 
 type LoaderDataType = SerializeFrom<typeof loader>;
 
 export default function ShoppingCart() {
-  const { products, shop, shoppingCartContent } =
+  const { products, shop, shoppingCartContent, priceSummary } =
     useLoaderData<typeof loader>();
 
   return (
@@ -86,11 +91,7 @@ export default function ShoppingCart() {
             ))}
           </ol>
 
-          <PriceSummary
-            products={products}
-            shop={shop}
-            cartContent={shoppingCartContent}
-          />
+          <PriceSummary summary={priceSummary} />
 
           <div className="mt-8 mb-16 flex justify-center">
             <Link
@@ -133,20 +134,13 @@ function ProductTile({
   const qty =
     cartContent?.[shop.id].find((p) => p.productId === product.id)?.qty ?? 0;
   const link = `../p/${product.url_name}`;
+  const taxRate = parseFloat(product.tax_rate ?? shop.default_tax_rate) * 100;
 
-  const totalCost = useMemo(() => {
-    const totalCost =
-      (product.price * qty) / shop.base_currency_info.multiplier;
-    return shop.base_currency_info.formatting.replace(
-      "?",
-      totalCost.toLocaleString()
-    );
-  }, [
-    product.price,
-    qty,
-    shop.base_currency_info.formatting,
+  const totalCost = getCurrencyAmtFormatted(
+    product.price * qty,
     shop.base_currency_info.multiplier,
-  ]);
+    shop.base_currency
+  );
 
   return (
     <div className="rounded-xl p-4 grid grid-cols-4 gap-2 border hover:shadow-lg bg-white bg-opacity-70">
@@ -155,7 +149,9 @@ function ProductTile({
           <h3 className="text-sm">{product.name}</h3>
         </Link>
 
-        <div className="text-lg font-bold">{totalCost}</div>
+        <div className="text-lg font-bold">
+          {totalCost} <span className="text-xs font-normal">+{taxRate}%</span>
+        </div>
 
         <Form method="post">
           <input
@@ -204,75 +200,10 @@ function ProductTile({
 }
 
 function PriceSummary({
-  products,
-  shop,
-  cartContent,
+  summary,
 }: {
-  products: Product[];
-  cartContent: LoaderDataType["shoppingCartContent"];
-  shop: LoaderDataType["shop"];
+  summary: LoaderDataType["priceSummary"];
 }) {
-  const productsInCookie = cartContent?.[shop.id] ?? [];
-  const multiplier = shop.base_currency_info.multiplier ?? 1;
-
-  let subtotal = 0;
-  products.forEach((p) => {
-    const prodInCookie = productsInCookie.find((pc) => pc.productId === p.id);
-    const qty = prodInCookie?.qty ?? 0;
-
-    subtotal += p.price * qty;
-  });
-
-  const itemsSubtotal = useMemo(() => {
-    const price = subtotal / multiplier;
-    return shop.base_currency_info.formatting.replace(
-      "?",
-      price.toLocaleString()
-    );
-  }, [multiplier, shop.base_currency_info.formatting, subtotal]);
-
-  const discountRate = 0.0;
-  const taxRate = 0.18;
-  const deliveryFee: number = 0;
-
-  const deliveryDisplay =
-    deliveryFee === 0
-      ? "Free"
-      : shop.base_currency_info.formatting.replace(
-          "?",
-          deliveryFee.toLocaleString()
-        );
-
-  const taxes = useMemo(() => {
-    const amt = (subtotal * taxRate) / multiplier;
-
-    return shop.base_currency_info.formatting.replace(
-      "?",
-      amt.toLocaleString()
-    );
-  }, [multiplier, shop.base_currency_info.formatting, subtotal]);
-
-  const discount = useMemo(() => {
-    const amt = (subtotal * discountRate) / multiplier;
-
-    return shop.base_currency_info.formatting.replace(
-      "?",
-      amt.toLocaleString()
-    );
-  }, [multiplier, shop.base_currency_info.formatting, subtotal]);
-
-  const grandTotal = useMemo(() => {
-    let grandTotal = subtotal - subtotal * discountRate;
-    grandTotal += grandTotal * taxRate;
-    grandTotal += deliveryFee;
-    grandTotal /= multiplier;
-
-    return shop.base_currency_info.formatting.replace(
-      "?",
-      grandTotal.toLocaleString()
-    );
-  }, [multiplier, shop.base_currency_info.formatting, subtotal]);
-
   return (
     <div className="border rounded-xl overflow-hidden">
       <div className="px-4 py-2 bg-gray-300">
@@ -283,34 +214,32 @@ function PriceSummary({
         <tbody>
           <tr>
             <th className="text-left px-4 py-2 font-normal">Subtotal</th>
-            <td className="text-right px-4 py-2 font-bold">{itemsSubtotal}</td>
-          </tr>
-          <tr>
-            <th className="text-left px-4 py-2 font-normal">Discounts</th>
-            <td className="text-right px-4 py-2 font-bold text-green-600">
-              - {discount}
+            <td className="text-right px-4 py-2 font-bold">
+              {summary.subtotalDisplay}
             </td>
           </tr>
           <tr>
-            <th className="text-left px-4 py-2 font-normal">
-              Taxes @ {taxRate * 100}%
-            </th>
-            <td className="text-right px-4 py-2 font-bold">{taxes}</td>
+            <th className="text-left px-4 py-2 font-normal">Taxes</th>
+            <td className="text-right px-4 py-2 font-bold">
+              {summary.taxAmountDisplay}
+            </td>
           </tr>
           <tr>
             <th className="text-left px-4 py-2 font-normal">Delivery fee</th>
             <td
               className={clsx("text-right px-4 py-2 font-bold", {
-                "text-green-600": deliveryFee === 0,
+                "text-green-600": summary.deliveryAmount === 0,
               })}
             >
-              {deliveryDisplay}
+              {summary.deliveryAmount === 0
+                ? "Free"
+                : summary.deliveryAmountDisplay}
             </td>
           </tr>
           <tr>
             <th className="text-left px-4 py-2 font-normal">Grand total</th>
             <td className="text-right px-4 py-2 text-green-600 font-extrabold text-2xl">
-              {grandTotal}
+              {summary.grandtotalDisplay}
             </td>
           </tr>
         </tbody>
