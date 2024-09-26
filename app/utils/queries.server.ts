@@ -10,6 +10,9 @@ import {
 } from "~/utils/cookies.server";
 import { getFileURL, serverAuth } from "~/firebase.server";
 import * as v from "valibot";
+import SQLite from "better-sqlite3";
+import url from "url";
+import path from "path";
 
 const defaultProductPhotoUrl = "https://placehold.co/600x400";
 
@@ -259,4 +262,22 @@ export async function getProducts(productIds: string[], shopId: string) {
     ...p,
     photoUrl: getFileURL(p.photos.at(0)?.path) ?? defaultProductPhotoUrl,
   }));
+}
+
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+const dbpath = path.join(__dirname, "../../db/data.sqlite");
+const sqlite = new SQLite(dbpath, { fileMustExist: true });
+
+const PincodeSchema = v.object({
+  StateName: v.string(),
+  District: v.string(),
+  OfficeName: v.string(),
+});
+
+export function getPincodeDetails(pincode: string) {
+  const result = sqlite
+    .prepare("SELECT * FROM pincodes WHERE Pincode = ?")
+    .all(pincode);
+
+  return v.parse(v.array(PincodeSchema), result);
 }
