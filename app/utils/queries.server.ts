@@ -272,6 +272,7 @@ const PincodeSchema = v.object({
   StateName: v.string(),
   District: v.string(),
   OfficeName: v.string(),
+  Country: v.string(),
 });
 
 export function getPincodeDetails(pincode: string) {

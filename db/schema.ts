@@ -176,7 +176,8 @@ export const taxRatesRelations = relations(taxRates, ({ one }) => ({
 const AddressSchema = v.object({
   address: v.string(),
   pin: v.optional(v.string()),
-  state_province: v.optional(v.string()),
+  state: v.optional(v.string()),
+  district: v.optional(v.string()),
   country: v.string(),
 });
 

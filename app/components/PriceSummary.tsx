@@ -4,11 +4,13 @@ import type { getOrderPriceSummary } from "~/utils/orders.server";
 
 export function PriceSummary({
   summary,
+  className,
 }: {
   summary: SerializeFrom<typeof getOrderPriceSummary>;
+  className?: string;
 }) {
   return (
-    <div className="border rounded-xl overflow-hidden">
+    <div className={clsx("border rounded-xl overflow-hidden", className)}>
       <div className="px-4 py-2 bg-gray-300">
         <h2 className="font-bold">Price summary</h2>
       </div>
