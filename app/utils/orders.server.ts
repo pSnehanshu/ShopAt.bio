@@ -19,15 +19,23 @@ interface OrderPriceSummary {
 
 export async function getOrderPriceSummary(
   cartContent: InferOutput<typeof ShoppingCartCookieSchema> | null,
-  shopUrlName: string,
-  locale: string
+  shopOrUrlName: Awaited<ReturnType<typeof getShopByUrlNameOrThrow>> | string,
+  locale: string,
+  givenProducts?: Awaited<ReturnType<typeof getProducts>>
 ): Promise<OrderPriceSummary> {
-  const shop = await getShopByUrlNameOrThrow(shopUrlName);
+  const shop =
+    typeof shopOrUrlName === "string"
+      ? await getShopByUrlNameOrThrow(shopOrUrlName)
+      : shopOrUrlName;
+
   const cart = cartContent?.[shop.id] ?? [];
-  const products = await getProducts(
-    cart.map((item) => item.productId),
-    shop.id
-  );
+  const products =
+    givenProducts ??
+    (await getProducts(
+      cart.map((item) => item.productId),
+      shop.id
+    ));
+
   const { multiplier, symbol } = shop.base_currency_info;
 
   let subtotal = 0;

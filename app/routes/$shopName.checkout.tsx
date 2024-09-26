@@ -14,6 +14,8 @@ import {
 } from "~/utils/queries.server";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
+  const locale = getUserLocale(request.headers.get("Accept-Language"));
+
   const shoppingCartContent = await parseShoppingCartCookie(request);
   const shop = await getShopByUrlNameOrThrow(params.shopName);
 
@@ -22,17 +24,16 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     return redirect("..");
   }
 
-  const locale = getUserLocale(request.headers.get("Accept-Language"));
-
-  const priceSummary = await getOrderPriceSummary(
-    shoppingCartContent,
-    shop.url_name,
-    locale
-  );
-
   const products = await getProducts(
     productsInCart.map((p) => p.productId),
     shop.id
+  );
+
+  const priceSummary = await getOrderPriceSummary(
+    shoppingCartContent,
+    shop,
+    locale,
+    products
   );
 
   return json({ shoppingCartContent, products, shop, priceSummary, locale });
