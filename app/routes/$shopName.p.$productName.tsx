@@ -48,7 +48,7 @@ export default function Index() {
     locale
   );
 
-  const taxes = parseFloat(product.tax_rate ?? shop.default_tax_rate) * 100;
+  const taxes = parseFloat(product.tax_rate?.rate ?? "0") * 100;
 
   return (
     <div className="mb-16">

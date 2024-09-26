@@ -27,9 +27,6 @@ export const shops = pgTable("shops", {
       onUpdate: "cascade",
     })
     .notNull(),
-  default_tax_rate: numeric("default_tax_rate", { precision: 5, scale: 2 })
-    .default("0.00")
-    .notNull(),
   icon_path: varchar("icon_path", { length: 255 }),
   cover_path: varchar("cover_path", { length: 255 }),
   bg_path: varchar("bg_path", { length: 255 }),
@@ -44,6 +41,7 @@ export const shopRelations = relations(shops, ({ many, one }) => ({
     references: [currencies.symbol],
   }),
   links: many(socialMediaLinks),
+  tax_rates: many(taxRates),
 }));
 
 export const socialMediaPlatformEnum = pgEnum("social_media_platform_enum", [
@@ -118,7 +116,10 @@ export const products = pgTable(
       .notNull(),
     qty: integer("qty").default(0).notNull(),
     price: integer("price").notNull(),
-    tax_rate: numeric("tax_rate", { precision: 5, scale: 2 }),
+    tax_rate_id: uuid("tax_rate_id").references(() => taxRates.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
     created_at: timestamp("created_at").defaultNow(),
   },
   (t) => ({
@@ -129,6 +130,10 @@ export const products = pgTable(
 export const productRelations = relations(products, ({ many, one }) => ({
   shop: one(shops, { fields: [products.shop_id], references: [shops.id] }),
   photos: many(productPhotos),
+  tax_rate: one(taxRates, {
+    fields: [products.tax_rate_id],
+    references: [taxRates.id],
+  }),
 }));
 
 export const productPhotos = pgTable("product_photos", {
@@ -148,4 +153,19 @@ export const productPhotoRelations = relations(productPhotos, ({ one }) => ({
     fields: [productPhotos.product_id],
     references: [products.id],
   }),
+}));
+
+export const taxRates = pgTable("tax_rates", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 20 }).notNull(),
+  rate: numeric("tax_rate", { precision: 5, scale: 2 }).notNull(),
+  shop_id: uuid("shop_id")
+    .references(() => shops.id, { onDelete: "cascade", onUpdate: "cascade" })
+    .notNull(),
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").$onUpdate(() => new Date()),
+});
+
+export const taxRatesRelations = relations(taxRates, ({ one }) => ({
+  shop: one(shops, { fields: [taxRates.id], references: [shops.id] }),
 }));

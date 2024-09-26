@@ -34,7 +34,7 @@ export async function getOrderPriceSummary(
   let taxAmount = 0;
   products.forEach((p) => {
     const qty = cart.find((pc) => pc.productId === p.id)?.qty ?? 0;
-    const taxRate = parseFloat(p.tax_rate ?? shop.default_tax_rate);
+    const taxRate = parseFloat(p.tax_rate?.rate ?? "0.00");
     const priceBeforeTax = p.price * qty;
     subtotal += priceBeforeTax;
     taxAmount += priceBeforeTax * taxRate;

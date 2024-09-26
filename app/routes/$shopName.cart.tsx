@@ -147,7 +147,7 @@ function ProductTile({
   const qty =
     cartContent?.[shop.id].find((p) => p.productId === product.id)?.qty ?? 0;
   const link = `../p/${product.url_name}`;
-  const taxRate = parseFloat(product.tax_rate ?? shop.default_tax_rate) * 100;
+  const taxRate = parseFloat(product.tax_rate?.rate ?? "0.00") * 100;
 
   const totalCost = getCurrencyAmtFormatted(
     product.price * qty,
