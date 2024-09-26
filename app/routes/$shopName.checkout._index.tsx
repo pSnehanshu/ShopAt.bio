@@ -169,7 +169,7 @@ export default function Checkout() {
         <p className="text-sm font-light">Please fill out the following form</p>
       </div>
 
-      <Form method="post">
+      <Form method="post" action="success">
         <div className="mb-4">
           {formFields.map((field) => (
             <div key={field.name} className="my-2">

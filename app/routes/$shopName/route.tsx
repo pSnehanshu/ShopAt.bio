@@ -149,7 +149,8 @@ export default function ShopLayout() {
 
       {/* shopping cart banner (don't show on the cart page) */}
       {!location.pathname.endsWith("/cart") &&
-        !location.pathname.endsWith("/checkout") && (
+        !location.pathname.endsWith("/checkout") &&
+        !location.pathname.endsWith("/checkout/success") && (
           <ShoppingCartBanner
             shop={shop}
             cartContent={shoppingCartContent}
