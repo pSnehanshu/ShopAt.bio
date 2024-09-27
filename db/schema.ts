@@ -174,7 +174,7 @@ export const productPhotoRelations = relations(productPhotos, ({ one }) => ({
 
 export const taxRates = pgTable("tax_rates", {
   id: uuid("id").defaultRandom().primaryKey(),
-  name: varchar("name", { length: 20 }).notNull(),
+  name: varchar("name", { length: 70 }).notNull(),
   rate: numeric("tax_rate", { precision: 5, scale: 2 }).notNull(),
   shop_id: uuid("shop_id")
     .references(() => shops.id, { onDelete: "cascade", onUpdate: "cascade" })
