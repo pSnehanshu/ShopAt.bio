@@ -170,9 +170,8 @@ export async function addToShoppingCart(
     }
   }
 
-  if (existingCart[shop.id]) {
-    const products = existingCart[shop.id];
-
+  const products = existingCart[shop.id];
+  if (products) {
     const thisProductIndex = products.findIndex(
       (p) => p.productId === productId
     );
@@ -183,10 +182,10 @@ export async function addToShoppingCart(
       }
     } else {
       if (operation === "add") {
-        products[thisProductIndex].qty++;
+        products[thisProductIndex]!.qty++;
       } else {
-        products[thisProductIndex].qty--;
-        if (products[thisProductIndex].qty <= 0) {
+        products[thisProductIndex]!.qty--;
+        if (products[thisProductIndex]!.qty <= 0) {
           products.splice(thisProductIndex, 1);
         }
       }
@@ -251,4 +250,21 @@ export function getFileURL(path: string | null | undefined): string | null {
     encodeURIComponent(path) +
     "?alt=media"
   );
+}
+
+export async function getOrderDetails(orderId: string) {
+  const order = await db.query.orders.findFirst({
+    where(fields, operators) {
+      return operators.eq(fields.id, orderId);
+    },
+    with: {
+      shop: {
+        columns: {
+          created_at: false,
+        },
+      },
+    },
+  });
+
+  return order;
 }

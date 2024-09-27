@@ -286,5 +286,5 @@ export const orders = pgTable("orders", {
 });
 
 export const ordersRelations = relations(orders, ({ one }) => ({
-  shop: one(shops, { fields: [orders.id], references: [shops.id] }),
+  shop: one(shops, { fields: [orders.shop_id], references: [shops.id] }),
 }));

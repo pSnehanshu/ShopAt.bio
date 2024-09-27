@@ -147,7 +147,7 @@ function ProductTile({
   locale: string;
 }) {
   const qty =
-    cartContent?.[shop.id].find((p) => p.productId === product.id)?.qty ?? 0;
+    cartContent?.[shop.id]?.find((p) => p.productId === product.id)?.qty ?? 0;
   const link = `../p/${product.url_name}`;
   const taxRate = parseFloat(product.tax_rate?.rate ?? "0.00") * 100;
 
