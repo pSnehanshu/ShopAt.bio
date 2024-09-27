@@ -221,6 +221,7 @@ export async function placeOrder(
       subtotal: prices.subtotal,
       taxes: prices.taxAmount,
       grandtotal: prices.grandtotal,
+      payment_method: formData.payment_method,
     })
     .returning({ id: ordersDbSchema.id });
 

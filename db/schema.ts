@@ -283,6 +283,7 @@ export const orders = pgTable("orders", {
   taxes: integer("taxes").notNull(),
   delivery_fee: integer("delivery_fee").notNull(),
   grandtotal: integer("grandtotal").notNull(),
+  payment_method: varchar("payment_method", { length: 50 }).notNull(),
 });
 
 export const ordersRelations = relations(orders, ({ one }) => ({

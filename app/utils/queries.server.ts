@@ -266,5 +266,24 @@ export async function getOrderDetails(orderId: string) {
     },
   });
 
-  return order;
+  const productIds = order?.products.map((p) => p.id) ?? [];
+  const photos = await db.query.productPhotos.findMany({
+    where(fields, { inArray, and, eq }) {
+      return and(
+        inArray(fields.product_id, productIds),
+        eq(fields.is_main, true)
+      );
+    },
+    columns: {
+      path: true,
+      product_id: true,
+    },
+  });
+  const productPics: Record<string, string> = {};
+  order?.products.forEach((p) => {
+    const picPath = photos.find((ph) => ph.product_id === p.id)?.path;
+    productPics[p.id] = getFileURL(picPath) ?? defaultProductPhotoUrl;
+  });
+
+  return { order, productPics };
 }
