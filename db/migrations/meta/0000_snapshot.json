@@ -1,5 +1,5 @@
 {
-  "id": "2490aa68-9f6a-4d3c-a665-6312328da394",
+  "id": "cf45c4ee-d903-4875-b594-525035c02ea4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -22,7 +22,7 @@
         },
         "multiplier": {
           "name": "multiplier",
-          "type": "integer",
+          "type": "smallint",
           "primaryKey": false,
           "notNull": true
         },
@@ -30,25 +30,125 @@
           "name": "one_usd_val",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": 1
-        },
-        "formatting": {
-          "name": "formatting",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         }
       },
       "indexes": {},
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.orders": {
+      "name": "orders",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "shop_id": {
+          "name": "shop_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "order_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'placed'"
+        },
+        "status_history": {
+          "name": "status_history",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "order_date": {
+          "name": "order_date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "products": {
+          "name": "products",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "buyer": {
+          "name": "buyer",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subtotal": {
+          "name": "subtotal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "discounts": {
+          "name": "discounts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "taxes": {
+          "name": "taxes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "delivery_fee": {
+          "name": "delivery_fee",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "grandtotal": {
+          "name": "grandtotal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "orders_shop_id_shops_id_fk": {
+          "name": "orders_shop_id_shops_id_fk",
+          "tableFrom": "orders",
+          "tableTo": "shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -67,7 +167,7 @@
           "name": "is_visible",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": true
         },
         "caption": {
@@ -82,15 +182,25 @@
           "primaryKey": false,
           "notNull": true
         },
-        "file_path": {
-          "name": "file_path",
-          "type": "varchar",
+        "path": {
+          "name": "path",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "generated": {
-            "as": "'product-photos/' || \"product_photos\".\"product_id\" || '/shopat_pic_' || \"product_photos\".\"id\"",
-            "type": "stored"
-          }
+          "notNull": true
+        },
+        "is_main": {
+          "name": "is_main",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
@@ -105,8 +215,8 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -129,11 +239,23 @@
           "primaryKey": false,
           "notNull": true
         },
+        "url_name": {
+          "name": "url_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "is_visible": {
           "name": "is_visible",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": true
         },
         "shop_id": {
@@ -146,7 +268,7 @@
           "name": "qty",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": 0
         },
         "price": {
@@ -155,18 +277,18 @@
           "primaryKey": false,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
+        "tax_rate_id": {
+          "name": "tax_rate_id",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
@@ -181,12 +303,34 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "products_tax_rate_id_tax_rates_id_fk": {
+          "name": "products_tax_rate_id_tax_rates_id_fk",
+          "tableFrom": "products",
+          "tableTo": "tax_rates",
+          "columnsFrom": [
+            "tax_rate_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "products_url_name_shop_id_unique": {
+          "name": "products_url_name_shop_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "url_name",
+            "shop_id"
+          ]
+        }
+      }
     },
     "public.shops": {
       "name": "shops",
@@ -211,6 +355,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "tagline": {
+          "name": "tagline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Shop at our online store'"
+        },
         "owner_id": {
           "name": "owner_id",
           "type": "uuid",
@@ -223,11 +374,29 @@
           "primaryKey": false,
           "notNull": true
         },
+        "icon_path": {
+          "name": "icon_path",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cover_path": {
+          "name": "cover_path",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bg_path": {
+          "name": "bg_path",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         }
       },
@@ -243,8 +412,8 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
         },
         "shops_base_currency_currencies_symbol_fk": {
           "name": "shops_base_currency_currencies_symbol_fk",
@@ -256,8 +425,8 @@
           "columnsTo": [
             "symbol"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -270,6 +439,131 @@
           ]
         }
       }
+    },
+    "public.social_media_links": {
+      "name": "social_media_links",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "shop_id": {
+          "name": "shop_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "platform": {
+          "name": "platform",
+          "type": "social_media_platform_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "social_media_links_shop_id_shops_id_fk": {
+          "name": "social_media_links_shop_id_shops_id_fk",
+          "tableFrom": "social_media_links",
+          "tableTo": "shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.tax_rates": {
+      "name": "tax_rates",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tax_rate": {
+          "name": "tax_rate",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "shop_id": {
+          "name": "shop_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tax_rates_shop_id_shops_id_fk": {
+          "name": "tax_rates_shop_id_shops_id_fk",
+          "tableFrom": "tax_rates",
+          "tableTo": "shops",
+          "columnsFrom": [
+            "shop_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
     "public.users": {
       "name": "users",
@@ -290,9 +584,9 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         }
       },
@@ -302,7 +596,39 @@
       "uniqueConstraints": {}
     }
   },
-  "enums": {},
+  "enums": {
+    "public.order_status": {
+      "name": "order_status",
+      "schema": "public",
+      "values": [
+        "placed",
+        "confirmed",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "return_placed",
+        "return_shipped",
+        "returned_refund_pending",
+        "returned_refund_done"
+      ]
+    },
+    "public.social_media_platform_enum": {
+      "name": "social_media_platform_enum",
+      "schema": "public",
+      "values": [
+        "youtube",
+        "facebook",
+        "instagram",
+        "x",
+        "threads",
+        "tiktok",
+        "linkedin",
+        "quora",
+        "email",
+        "generic_link"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "_meta": {

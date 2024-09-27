@@ -22,8 +22,6 @@
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.33.0",
-    "firebase": "^10.13.2",
-    "firebase-admin": "^12.5.0",
     "isbot": "^4.1.0",
     "postgres": "^3.4.4",
     "react": "^18.2.0",

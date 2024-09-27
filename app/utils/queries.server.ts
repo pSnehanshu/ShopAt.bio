@@ -1,54 +1,12 @@
 import { db } from "db";
-import { users } from "db/schema";
-import { InferSelectModel } from "drizzle-orm";
-import { DecodedIdToken } from "firebase-admin/auth";
 import invariant from "tiny-invariant";
-import {
-  session,
-  shoppingCart,
-  ShoppingCartCookieSchema,
-} from "~/utils/cookies.server";
-import { getFileURL, serverAuth } from "~/firebase.server";
+import { shoppingCart, ShoppingCartCookieSchema } from "~/utils/cookies.server";
 import * as v from "valibot";
 import SQLite from "better-sqlite3";
 import url from "url";
 import path from "path";
 
 const defaultProductPhotoUrl = "https://placehold.co/600x400";
-
-type AuthInfo =
-  | {
-      token: DecodedIdToken;
-      user: InferSelectModel<typeof users>;
-      isLoggedIn: true;
-    }
-  | {
-      token?: DecodedIdToken;
-      user?: InferSelectModel<typeof users>;
-      isLoggedIn: false;
-    };
-
-export async function getAuthInfo(request: Request): Promise<AuthInfo> {
-  // Get the cookie value (JWT)
-  const jwt = await session.parse(request.headers.get("Cookie"));
-
-  // No JWT found...
-  if (typeof jwt !== "string") {
-    return { isLoggedIn: false };
-  }
-
-  const token = await serverAuth.verifySessionCookie(jwt);
-
-  const user = await db.query.users.findFirst({
-    where: (fields, { eq }) => eq(fields.firebase_id, token.uid),
-  });
-
-  if (!user) {
-    return { token, user, isLoggedIn: false };
-  }
-
-  return { token, user, isLoggedIn: true };
-}
 
 export async function getShopByUrlNameOrThrow(
   shopUrlName: string | null | undefined
@@ -281,4 +239,16 @@ export function getPincodeDetails(pincode: string) {
     .all(pincode);
 
   return v.parse(v.array(PincodeSchema), result);
+}
+
+export function getFileURL(path: string | null | undefined): string | null {
+  if (!path) return null;
+
+  return (
+    "https://firebasestorage.googleapis.com/v0/b/" +
+    "shopat-bio.appspot.com" +
+    "/o/" +
+    encodeURIComponent(path) +
+    "?alt=media"
+  );
 }

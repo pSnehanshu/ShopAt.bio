@@ -11,6 +11,7 @@ import {
   pgEnum,
   numeric,
   jsonb,
+  smallint,
 } from "drizzle-orm/pg-core";
 import * as v from "valibot";
 
@@ -32,7 +33,9 @@ export const shops = pgTable("shops", {
   icon_path: varchar("icon_path", { length: 255 }),
   cover_path: varchar("cover_path", { length: 255 }),
   bg_path: varchar("bg_path", { length: 255 }),
-  created_at: timestamp("created_at").defaultNow(),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const shopRelations = relations(shops, ({ many, one }) => ({
@@ -67,8 +70,12 @@ export const socialMediaLinks = pgTable("social_media_links", {
     .notNull(),
   platform: socialMediaPlatformEnum("platform").notNull(),
   url: text("url").notNull(),
-  created_at: timestamp("created_at").defaultNow(),
-  updated_at: timestamp("updated_at").$onUpdate(() => new Date()),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp("updated_at", { withTimezone: true })
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
 export const socialMediaLinkRelations = relations(
@@ -84,8 +91,9 @@ export const socialMediaLinkRelations = relations(
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
-  firebase_id: varchar("firebase_id", { length: 50 }).notNull().unique(),
-  created_at: timestamp("created_at").defaultNow(),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const userRelations = relations(users, ({ many }) => ({
@@ -97,9 +105,11 @@ export const currencies = pgTable("currencies", {
   full_name: varchar("full_name", { length: 30 }).$default(
     (): SQL => sql`${currencies.symbol}`
   ),
-  multiplier: integer("multiplier").notNull(),
+  multiplier: smallint("multiplier").notNull(),
   one_usd_val: integer("one_usd_val").default(1).notNull(),
-  created_at: timestamp("created_at").defaultNow(),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const currencyRelations = relations(currencies, ({ many }) => ({
@@ -123,7 +133,9 @@ export const products = pgTable(
       onDelete: "set null",
       onUpdate: "cascade",
     }),
-    created_at: timestamp("created_at").defaultNow(),
+    created_at: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
   },
   (t) => ({
     url_name_shop_id_unq: unique().on(t.url_name, t.shop_id),
@@ -148,7 +160,9 @@ export const productPhotos = pgTable("product_photos", {
     .notNull(),
   path: varchar("path", { length: 255 }).notNull(),
   is_main: boolean("is_main").default(false).notNull(),
-  created_at: timestamp("created_at").defaultNow().notNull(),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export const productPhotoRelations = relations(productPhotos, ({ one }) => ({
@@ -165,8 +179,12 @@ export const taxRates = pgTable("tax_rates", {
   shop_id: uuid("shop_id")
     .references(() => shops.id, { onDelete: "cascade", onUpdate: "cascade" })
     .notNull(),
-  created_at: timestamp("created_at").defaultNow(),
-  updated_at: timestamp("updated_at").$onUpdate(() => new Date()),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp("updated_at", { withTimezone: true })
+    .$onUpdate(() => new Date())
+    .notNull(),
 });
 
 export const taxRatesRelations = relations(taxRates, ({ one }) => ({

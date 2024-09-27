@@ -1,1 +1,0 @@
-ALTER TABLE "shops" DROP COLUMN IF EXISTS "locale";

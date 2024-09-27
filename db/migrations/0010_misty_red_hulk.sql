@@ -1,1 +1,0 @@
-ALTER TABLE "currencies" ALTER COLUMN "formatting" SET NOT NULL;

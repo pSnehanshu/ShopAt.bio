@@ -1,1 +1,0 @@
-ALTER TABLE "shops" ADD COLUMN "tagline" text DEFAULT 'Shop at our online store';
