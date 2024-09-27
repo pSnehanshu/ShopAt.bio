@@ -1,0 +1,1 @@
+ALTER TABLE "orders" ADD COLUMN "access_password" varchar(70);

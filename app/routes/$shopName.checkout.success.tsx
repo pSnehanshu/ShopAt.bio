@@ -2,83 +2,52 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
+  MetaFunction,
   redirect,
 } from "@remix-run/node";
-import { shoppingCart } from "~/utils/cookies.server";
 import {
-  getProducts,
   getShopByUrlNameOrThrow,
   parseShoppingCartCookie,
 } from "~/utils/queries.server";
 import orderPlacedAnimation from "~/assets/order-placed.webm";
 import { Link, useLoaderData } from "@remix-run/react";
+import * as v from "valibot";
+import { getUserLocale } from "~/utils/misc";
+import { placeOrder, PlaceOrderFormDataSchema } from "~/utils/orders.server";
+import invariant from "tiny-invariant";
 
 export async function action({ request, params }: ActionFunctionArgs) {
+  invariant(params.shopName, "params.shopName must be defined");
+
+  // Validate input
+  const _raw_formData = await request.formData();
+  const formData = v.parse(
+    PlaceOrderFormDataSchema,
+    Object.fromEntries(_raw_formData)
+  );
   const shoppingCartContent = await parseShoppingCartCookie(request);
-  const shop = await getShopByUrlNameOrThrow(params.shopName);
+  const locale = getUserLocale(request.headers.get("Accept-Language"));
 
-  const productsInCart = shoppingCartContent?.[shop.id] ?? [];
-  if (productsInCart.length < 1 || !shoppingCartContent) {
-    return new Response("Shopping cart is empty", { status: 403 });
+  try {
+    const { orderId, cookie } = await placeOrder(
+      params.shopName,
+      formData,
+      shoppingCartContent,
+      locale
+    );
+
+    // Redirect to success page
+    return redirect(`?order_id=${encodeURIComponent(orderId)}`, {
+      headers: { "Set-Cookie": cookie },
+    });
+  } catch (error) {
+    console.error(error);
+
+    if (error instanceof Error) {
+      return json({ message: error.message }, { status: 400 });
+    }
+    return new Response("Something went wrong", { status: 500 });
   }
-
-  const products = await getProducts(
-    productsInCart.map((p) => p.productId),
-    shop.id
-  );
-
-  const formData = await request.formData();
-  const fullName = formData.get("full_name");
-  const email = formData.get("email");
-  const phone = formData.get("phone");
-  const address = formData.get("address");
-  const pin = formData.get("pin");
-  const district = formData.get("district");
-  const state = formData.get("state");
-  const country = formData.get("country");
-  const paymentMethod = formData.get("payment_method");
-
-  // Validate required fields
-  if (
-    !fullName ||
-    !phone ||
-    !address ||
-    !pin ||
-    !state ||
-    !country ||
-    !paymentMethod
-  ) {
-    return json({ error: "Please fill all required fields" }, { status: 400 });
-  }
-
-  console.log(
-    fullName,
-    email,
-    phone,
-    address,
-    pin,
-    district,
-    state,
-    country,
-    paymentMethod,
-    products
-  );
-
-  // TODO: Process the order
-  // This would typically involve:
-  // 1. Creating an order in the database
-  // 2. Handling payment (if not COD)
-  // 3. Updating inventory
-  // 4. Sending confirmation emails
-
-  // Clear shopping cart
-  delete shoppingCartContent[shop.id];
-  const cookie = await shoppingCart.serialize(shoppingCartContent);
-
-  // For now, we'll just redirect to a success page
-  return redirect(`?order_id=123`, {
-    headers: { "Set-Cookie": cookie },
-  });
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -97,6 +66,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return json({ shop, orderId });
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => [
+  {
+    title: `Order success | ${data?.shop.full_name} | ShopAt.bio`,
+  },
+];
 
 export default function CheckoutSuccess() {
   const { orderId } = useLoaderData<typeof loader>();

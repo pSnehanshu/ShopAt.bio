@@ -218,7 +218,7 @@ export const BuyerSchema = v.object({
   }),
 });
 
-enum OrderStatuses {
+export enum OrderStatusesEnum {
   placed = "placed",
   confirmed = "confirmed",
   shipped = "shipped",
@@ -229,13 +229,13 @@ enum OrderStatuses {
   returned_refund_pending = "returned_refund_pending",
   returned_refund_done = "returned_refund_done",
 }
-export const orderStatusEnum = pgEnum(
+export const orderStatusPgEnum = pgEnum(
   "order_status",
-  Object.values(OrderStatuses) as [string, ...string[]]
+  Object.values(OrderStatusesEnum) as [string, ...string[]]
 );
 export const StatusHistorySchema = v.array(
   v.object({
-    status: v.enum(OrderStatuses),
+    status: v.enum(OrderStatusesEnum),
     date: v.pipe(v.string(), v.isoTimestamp()),
     remarks: v.optional(v.pipe(v.string(), v.trim())),
   })
@@ -246,7 +246,7 @@ export const orders = pgTable("orders", {
   shop_id: uuid("shop_id")
     .references(() => shops.id, { onDelete: "cascade", onUpdate: "cascade" })
     .notNull(),
-  status: orderStatusEnum("status").default("placed").notNull(),
+  status: orderStatusPgEnum("status").default("placed").notNull(),
   status_history: jsonb("status_history")
     .$type<v.InferOutput<typeof StatusHistorySchema>>()
     .notNull(),
