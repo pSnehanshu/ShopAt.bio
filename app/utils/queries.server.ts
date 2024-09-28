@@ -6,8 +6,7 @@ import SQLite from "better-sqlite3";
 import url from "url";
 import path from "path";
 import psl from "psl";
-
-const defaultProductPhotoUrl = "https://placehold.co/600x400";
+import { getFileURL } from "./misc";
 
 export async function getShopByHostName(hostName: string | null | undefined) {
   // Hostname may contain port, remove it
@@ -99,7 +98,7 @@ export async function getProductByUrlNameOrThrow(
 
   return {
     ...product,
-    photoUrl: getFileURL(product.photos.at(0)?.path) ?? defaultProductPhotoUrl,
+    photoUrl: getFileURL(product.photos.at(0)?.path),
   };
 }
 
@@ -124,7 +123,7 @@ export async function getProductById(
 
   return {
     ...product,
-    photoUrl: getFileURL(product.photos.at(0)?.path) ?? defaultProductPhotoUrl,
+    photoUrl: getFileURL(product.photos.at(0)?.path),
   };
 }
 
@@ -149,7 +148,7 @@ export async function getHomepageProducts(
 
   return products.map((p) => ({
     ...p,
-    photoUrl: getFileURL(p.photos.at(0)?.path) ?? defaultProductPhotoUrl,
+    photoUrl: getFileURL(p.photos.at(0)?.path),
   }));
 }
 
@@ -233,7 +232,7 @@ export async function getProducts(productIds: string[], shopId: string) {
 
   return products.map((p) => ({
     ...p,
-    photoUrl: getFileURL(p.photos.at(0)?.path) ?? defaultProductPhotoUrl,
+    photoUrl: getFileURL(p.photos.at(0)?.path),
   }));
 }
 
@@ -254,18 +253,6 @@ export function getPincodeDetails(pincode: string) {
     .all(pincode);
 
   return v.parse(v.array(PincodeSchema), result);
-}
-
-export function getFileURL(path: string | null | undefined): string | null {
-  if (!path) return null;
-
-  return (
-    "https://firebasestorage.googleapis.com/v0/b/" +
-    "shopat-bio.appspot.com" +
-    "/o/" +
-    encodeURIComponent(path) +
-    "?alt=media"
-  );
 }
 
 export async function getOrderDetails(orderId: string) {
@@ -298,7 +285,7 @@ export async function getOrderDetails(orderId: string) {
   const productPics: Record<string, string> = {};
   order?.products.forEach((p) => {
     const picPath = photos.find((ph) => ph.product_id === p.id)?.path;
-    productPics[p.id] = getFileURL(picPath) ?? defaultProductPhotoUrl;
+    productPics[p.id] = getFileURL(picPath);
   });
 
   return { order, productPics };

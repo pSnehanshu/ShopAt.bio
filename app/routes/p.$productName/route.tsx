@@ -1,4 +1,9 @@
-import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import {
+  json,
+  LoaderFunctionArgs,
+  MetaFunction,
+  SerializeFrom,
+} from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { getCurrencyAmtFormatted, getUserLocale } from "~/utils/misc";
 import {
@@ -8,6 +13,7 @@ import {
   parseShoppingCartCookie,
 } from "~/utils/queries.server";
 import { AddToCartBtn } from "~/components/AddToCartBtn";
+import { ProductPhotosSlider } from "./ProductPhotosSlider";
 
 function isUUID(str: string | null | undefined): boolean {
   if (!str) return false;
@@ -29,6 +35,8 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
   return json({ product, shop, shoppingCartContent, locale });
 }
+
+export type LoaderData = SerializeFrom<typeof loader>;
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => [
   {
@@ -52,9 +60,7 @@ export default function Index() {
 
   return (
     <div className="mb-16">
-      <div className="rounded-t-xl overflow-hidden">
-        <img src={product.photoUrl} alt={product.name} className="w-full" />
-      </div>
+      <ProductPhotosSlider photos={product.photos} />
 
       <div className="bg-white bg-opacity-40 rounded-b-xl p-4">
         <h1 className="text-lg uppercase mb-4">{product.name}</h1>
