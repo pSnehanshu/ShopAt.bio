@@ -5,6 +5,7 @@ import { SocialMediaLinks } from "./SocialMediaLinks";
 import { ShoppingCartBanner } from "./ShoppingCartBanner";
 import { ShoppingCartButton } from "./ShoppingCartButton";
 import type { RootLoaderData } from "~/root";
+import toast from "react-hot-toast";
 
 export function ShopLayout(
   props: RootLoaderData & { children: React.ReactNode }
@@ -17,13 +18,13 @@ export function ShopLayout(
     if (navigator.share) {
       await navigator.share(data);
     } else {
-      console.log("Web Share API not supported.");
+      toast.error("Web Share API not supported.");
     }
   }, []);
 
   return (
     <>
-      <div className="w-full max-w-2xl mx-auto border border-y-0 min-h-screen">
+      <main className="w-full max-w-2xl mx-auto border border-y-0 min-h-screen">
         <style
           dangerouslySetInnerHTML={{
             __html: `body::before {
@@ -108,7 +109,7 @@ export function ShopLayout(
             </a>
           </p>
         </div>
-      </div>
+      </main>
 
       {/* shopping cart banner (don't show on the cart page) */}
       {!location.pathname.endsWith("/cart") &&

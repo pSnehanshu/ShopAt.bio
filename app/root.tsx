@@ -13,7 +13,7 @@ import type {
   MetaFunction,
   SerializeFrom,
 } from "@remix-run/node";
-
+import { Toaster } from "react-hot-toast";
 import "./tailwind.css";
 import {
   getProducts,
@@ -47,6 +47,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="relative z-[1]">
         {children}
+
+        <Toaster position="top-right" reverseOrder />
         <ScrollRestoration />
         <Scripts />
       </body>
