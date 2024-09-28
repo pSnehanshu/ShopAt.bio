@@ -4,7 +4,7 @@ import { getCurrencyAmtFormatted, getUserLocale } from "~/utils/misc";
 import {
   getProductById,
   getProductByUrlNameOrThrow,
-  getShopByUrlNameOrThrow,
+  getShopByHostName,
   parseShoppingCartCookie,
 } from "~/utils/queries.server";
 import { AddToCartBtn } from "~/components/AddToCartBtn";
@@ -18,7 +18,7 @@ function isUUID(str: string | null | undefined): boolean {
 }
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
-  const shop = await getShopByUrlNameOrThrow(params.shopName);
+  const shop = await getShopByHostName(request.headers.get("Host"));
   const shoppingCartContent = await parseShoppingCartCookie(request);
 
   const product = await (isUUID(params.productName)

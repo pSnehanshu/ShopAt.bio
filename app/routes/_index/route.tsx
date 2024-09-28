@@ -2,14 +2,14 @@ import { json, LoaderFunctionArgs, SerializeFrom } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import {
   getHomepageProducts,
-  getShopByUrlNameOrThrow,
+  getShopByHostName,
   parseShoppingCartCookie,
 } from "~/utils/queries.server";
 import { ProductTile } from "./ProductTile";
 import { getUserLocale } from "~/utils/misc";
 
-export async function loader({ params, request }: LoaderFunctionArgs) {
-  const shop = await getShopByUrlNameOrThrow(params.shopName);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const shop = await getShopByHostName(request.headers.get("Host"));
   const products = await getHomepageProducts(shop.id);
   const shoppingCartContent = await parseShoppingCartCookie(request);
   const locale = getUserLocale(request.headers.get("Accept-Language"));

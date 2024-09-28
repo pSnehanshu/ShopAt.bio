@@ -14,27 +14,27 @@ import { getOrderPriceSummary } from "~/utils/orders.server";
 import {
   addToShoppingCart,
   getProducts,
-  getShopByUrlNameOrThrow,
+  getShopByHostName,
   parseShoppingCartCookie,
 } from "~/utils/queries.server";
 import type { ArrayElement } from "~/utils/types";
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const productUrlName = formData.get("product_url_name");
   const operation = formData.get("operation");
-  const shopUrlName = params.shopName;
+  const hostName = request.headers.get("Host");
 
   invariant(
     productUrlName,
     "product_url_name must be provided in request body"
   );
-  invariant(shopUrlName, "params.shopName must be set");
+  invariant(hostName, "Host header must be set");
 
   const cookie = await addToShoppingCart(
     request,
     productUrlName.toString(),
-    shopUrlName,
+    hostName,
     operation?.toString() === "remove" ? "remove" : "add"
   );
 
@@ -44,10 +44,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 }
 
-export async function loader({ params, request }: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const locale = getUserLocale(request.headers.get("Accept-Language"));
 
-  const shop = await getShopByUrlNameOrThrow(params.shopName);
+  const shop = await getShopByHostName(request.headers.get("Host"));
   const shoppingCartContent = await parseShoppingCartCookie(request);
 
   const productsInCart = shoppingCartContent?.[shop.id] ?? [];

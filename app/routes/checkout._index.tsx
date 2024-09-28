@@ -12,17 +12,17 @@ import { getUserLocale } from "~/utils/misc";
 import { getOrderPriceSummary } from "~/utils/orders.server";
 import {
   getProducts,
-  getShopByUrlNameOrThrow,
   parseShoppingCartCookie,
   getPincodeDetails,
+  getShopByHostName,
 } from "~/utils/queries.server";
 import { useDebounceCallback } from "usehooks-ts";
 
-export async function loader({ params, request }: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const locale = getUserLocale(request.headers.get("Accept-Language"));
 
   const shoppingCartContent = await parseShoppingCartCookie(request);
-  const shop = await getShopByUrlNameOrThrow(params.shopName);
+  const shop = await getShopByHostName(request.headers.get("Host"));
 
   const productsInCart = shoppingCartContent?.[shop.id] ?? [];
   if (productsInCart.length < 1) {

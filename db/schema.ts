@@ -18,7 +18,8 @@ import * as v from "valibot";
 export const shops = pgTable("shops", {
   id: uuid("id").defaultRandom().primaryKey(),
   full_name: varchar("full_name", { length: 255 }).notNull(),
-  url_name: varchar("url_name", { length: 255 }).notNull(),
+  subdomain: varchar("subdomain", { length: 255 }).notNull().unique(),
+  is_active: boolean("is_active").notNull().default(true),
   tagline: text("tagline").default("Shop at our online store"),
   owner_id: uuid("owner_id")
     .references(() => users.id, { onDelete: "restrict", onUpdate: "cascade" })

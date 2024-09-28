@@ -6,7 +6,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import {
-  getShopByUrlNameOrThrow,
+  getShopByHostName,
   parseShoppingCartCookie,
 } from "~/utils/queries.server";
 import orderPlacedAnimation from "~/assets/order-placed.webm";
@@ -16,8 +16,9 @@ import { getUserLocale } from "~/utils/misc";
 import { placeOrder, PlaceOrderFormDataSchema } from "~/utils/orders.server";
 import invariant from "tiny-invariant";
 
-export async function action({ request, params }: ActionFunctionArgs) {
-  invariant(params.shopName, "params.shopName must be defined");
+export async function action({ request }: ActionFunctionArgs) {
+  const hostName = request.headers.get("Host");
+  invariant(hostName, "host header must be set");
 
   // Validate input
   const _raw_formData = await request.formData();
@@ -30,7 +31,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   try {
     const { orderId, cookie } = await placeOrder(
-      params.shopName,
+      hostName,
       formData,
       shoppingCartContent,
       locale
@@ -50,14 +51,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const orderId = new URL(request.url).searchParams.get("order_id");
   if (!orderId) {
     return redirect("..");
   }
 
   const shoppingCartContent = await parseShoppingCartCookie(request);
-  const shop = await getShopByUrlNameOrThrow(params.shopName);
+  const shop = await getShopByHostName(request.headers.get("Host"));
 
   const productsInCart = shoppingCartContent?.[shop.id] ?? [];
   if (productsInCart.length > 0) {

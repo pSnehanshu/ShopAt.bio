@@ -5,16 +5,43 @@ import * as v from "valibot";
 import SQLite from "better-sqlite3";
 import url from "url";
 import path from "path";
+import psl from "psl";
 
 const defaultProductPhotoUrl = "https://placehold.co/600x400";
 
-export async function getShopByUrlNameOrThrow(
-  shopUrlName: string | null | undefined
-) {
-  invariant(shopUrlName, "expected shopUrlName");
+export async function getShopByHostName(hostName: string | null | undefined) {
+  // Hostname may contain port, remove it
+  hostName = hostName?.split(":")[0];
+  invariant(hostName, "Host header must be set");
+
+  const nativeDomains = ["shopat.bio", "shop-at.bio", "localtest.me"];
+  const parsed = psl.parse(hostName);
+  if (parsed.error) {
+    throw new Response(parsed.error.message, { status: 400 });
+  }
+
+  const { domain, subdomain } = parsed;
+
+  if (!domain) {
+    throw new Response("Invalid domain name", { status: 406 });
+  }
+
+  const isCustomDomain = !nativeDomains.includes(domain);
+
+  if (isCustomDomain) {
+    throw new Response("We don't support custom domains yet", { status: 406 });
+  }
+
+  if (!subdomain) {
+    throw new Response("Shops are accessible on a subdomain only", {
+      status: 406,
+    });
+  }
 
   const shop = await db.query.shops.findFirst({
-    where: (fields, { eq }) => eq(fields.url_name, shopUrlName),
+    where(fields, { eq, and }) {
+      return and(eq(fields.subdomain, subdomain), eq(fields.is_active, true));
+    },
     with: {
       owner: {
         columns: {
@@ -38,7 +65,7 @@ export async function getShopByUrlNameOrThrow(
   });
 
   if (!shop) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Response("Not found", { status: 404 });
   }
 
   return {
@@ -150,11 +177,11 @@ export async function parseShoppingCartCookie(request: Request) {
 export async function addToShoppingCart(
   request: Request,
   productUrlName: string,
-  shopUrlName: string,
+  hostName: string,
   operation: "add" | "remove"
 ): Promise<string> {
   const existingCart = await parseShoppingCartCookie(request);
-  const shop = await getShopByUrlNameOrThrow(shopUrlName);
+  const shop = await getShopByHostName(hostName);
   const product = await getProductByUrlNameOrThrow(shop.id, productUrlName);
   const productId = product.id;
 

@@ -1,4 +1,4 @@
-import type { LoaderDataType } from "./route";
+import type { RootLoaderData } from "~/root";
 import { Link } from "@remix-run/react";
 import { PiShoppingCartFill } from "react-icons/pi";
 import { FaArrowRight } from "react-icons/fa6";
@@ -10,9 +10,9 @@ export function ShoppingCartBanner({
   shop,
   locale,
 }: {
-  cartContent: LoaderDataType["shoppingCartContent"];
-  productsInfo: LoaderDataType["shoppinCartProducts"];
-  shop: LoaderDataType["shop"];
+  cartContent: RootLoaderData["shoppingCartContent"];
+  productsInfo: RootLoaderData["shoppinCartProducts"];
+  shop: RootLoaderData["shop"];
   locale: string;
 }) {
   const productsInCookie = cartContent?.[shop.id] ?? [];

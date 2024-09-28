@@ -2,7 +2,7 @@ import { InferOutput } from "valibot";
 import { shoppingCart, ShoppingCartCookieSchema } from "./cookies.server";
 import {
   getProducts,
-  getShopByUrlNameOrThrow,
+  getShopByHostName,
   parseShoppingCartCookie,
 } from "./queries.server";
 import { getCurrencyAmtFormatted } from "./misc";
@@ -35,14 +35,14 @@ interface OrderPriceSummary {
 
 export async function getOrderPriceSummary(
   cartContent: InferOutput<typeof ShoppingCartCookieSchema> | null,
-  shopOrUrlName: Awaited<ReturnType<typeof getShopByUrlNameOrThrow>> | string,
+  shopOrHostName: Awaited<ReturnType<typeof getShopByHostName>> | string,
   locale: string,
   givenProducts?: Awaited<ReturnType<typeof getProducts>>
 ): Promise<OrderPriceSummary> {
   const shop =
-    typeof shopOrUrlName === "string"
-      ? await getShopByUrlNameOrThrow(shopOrUrlName)
-      : shopOrUrlName;
+    typeof shopOrHostName === "string"
+      ? await getShopByHostName(shopOrHostName)
+      : shopOrHostName;
 
   const cart = cartContent?.[shop.id] ?? [];
   const products =
@@ -115,12 +115,12 @@ export const PlaceOrderFormDataSchema = v.object({
 });
 
 export async function placeOrder(
-  shopName: string,
+  hostName: string,
   formData: v.InferOutput<typeof PlaceOrderFormDataSchema>,
   shoppingCartContent: Awaited<ReturnType<typeof parseShoppingCartCookie>>,
   locale: string
 ): Promise<{ orderId: string; cookie: string }> {
-  const shop = await getShopByUrlNameOrThrow(shopName);
+  const shop = await getShopByHostName(hostName);
 
   const productsInCart = shoppingCartContent?.[shop.id] ?? [];
   if (productsInCart.length < 1 || !shoppingCartContent) {
