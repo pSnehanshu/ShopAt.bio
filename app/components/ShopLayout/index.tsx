@@ -77,14 +77,16 @@ export function ShopLayout(
             </Link>
           </div>
 
-          <div className="text-center">
-            <Link to="." className="hover:underline">
-              <h1 className="text-lg font-bold">{shop.full_name}</h1>
-            </Link>
-            <p className="text-sm">{shop.tagline}</p>
-          </div>
+          <div className="bg-gray-200 bg-opacity-70">
+            <div className="text-center">
+              <Link to="." className="hover:underline">
+                <h1 className="text-lg font-bold">{shop.full_name}</h1>
+              </Link>
+              <p className="text-sm">{shop.tagline}</p>
+            </div>
 
-          <SocialMediaLinks links={shop.links} className="my-8" />
+            <SocialMediaLinks links={shop.links} className="mt-4 mb-8" />
+          </div>
         </div>
 
         {/* Body */}
