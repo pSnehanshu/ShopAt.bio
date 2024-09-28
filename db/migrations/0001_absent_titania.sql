@@ -1,1 +1,0 @@
-ALTER TABLE "tax_rates" ALTER COLUMN "name" SET DATA TYPE varchar(70);

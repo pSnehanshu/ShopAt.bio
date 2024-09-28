@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1727463645350,
-      "tag": "0000_optimal_chronomancer",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1727464315579,
-      "tag": "0001_absent_titania",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1727467386857,
-      "tag": "0002_bent_excalibur",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1727509074406,
-      "tag": "0003_tense_proteus",
+      "when": 1727511957538,
+      "tag": "0000_elite_purple_man",
       "breakpoints": true
     }
   ]

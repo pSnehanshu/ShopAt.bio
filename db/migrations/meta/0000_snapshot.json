@@ -1,5 +1,5 @@
 {
-  "id": "cf45c4ee-d903-4875-b594-525035c02ea4",
+  "id": "94555ac1-d517-458c-b6d1-7952d21cba78",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -129,6 +129,12 @@
         "grandtotal": {
           "name": "grandtotal",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_method": {
+          "name": "payment_method",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": true
         }
@@ -349,11 +355,18 @@
           "primaryKey": false,
           "notNull": true
         },
-        "url_name": {
-          "name": "url_name",
+        "subdomain": {
+          "name": "subdomain",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
         },
         "tagline": {
           "name": "tagline",
@@ -431,6 +444,13 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
+        "shops_subdomain_unique": {
+          "name": "shops_subdomain_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "subdomain"
+          ]
+        },
         "shops_owner_id_unique": {
           "name": "shops_owner_id_unique",
           "nullsNotDistinct": false,
@@ -516,7 +536,7 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(20)",
+          "type": "varchar(70)",
           "primaryKey": false,
           "notNull": true
         },

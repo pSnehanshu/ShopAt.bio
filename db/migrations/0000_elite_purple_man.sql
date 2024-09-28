@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS "orders" (
 	"discounts" integer NOT NULL,
 	"taxes" integer NOT NULL,
 	"delivery_fee" integer NOT NULL,
-	"grandtotal" integer NOT NULL
+	"grandtotal" integer NOT NULL,
+	"payment_method" varchar(50) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "product_photos" (
@@ -61,7 +62,8 @@ CREATE TABLE IF NOT EXISTS "products" (
 CREATE TABLE IF NOT EXISTS "shops" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"full_name" varchar(255) NOT NULL,
-	"url_name" varchar(255) NOT NULL,
+	"subdomain" varchar(255) NOT NULL,
+	"is_active" boolean DEFAULT true NOT NULL,
 	"tagline" text DEFAULT 'Shop at our online store',
 	"owner_id" uuid NOT NULL,
 	"base_currency" varchar NOT NULL,
@@ -69,6 +71,7 @@ CREATE TABLE IF NOT EXISTS "shops" (
 	"cover_path" varchar(255),
 	"bg_path" varchar(255),
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "shops_subdomain_unique" UNIQUE("subdomain"),
 	CONSTRAINT "shops_owner_id_unique" UNIQUE("owner_id")
 );
 --> statement-breakpoint
@@ -83,7 +86,7 @@ CREATE TABLE IF NOT EXISTS "social_media_links" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "tax_rates" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" varchar(20) NOT NULL,
+	"name" varchar(70) NOT NULL,
 	"tax_rate" numeric(5, 2) NOT NULL,
 	"shop_id" uuid NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
