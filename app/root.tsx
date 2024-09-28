@@ -60,11 +60,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const shop = await getShopByHostName(request.headers.get("Host"));
   const shoppingCartContent = await parseShoppingCartCookie(request);
 
-  const productsInCart = shoppingCartContent?.[shop.id] ?? [];
-  const shoppinCartProducts = await getProducts(
-    productsInCart.map((p) => p.productId),
-    shop.id
-  );
+  const productsIds = Object.keys(shoppingCartContent ?? {});
+  const shoppinCartProducts = await getProducts(productsIds, shop.id);
 
   const locale = getUserLocale(request.headers.get("Accept-Language"));
 

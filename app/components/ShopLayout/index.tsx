@@ -52,10 +52,7 @@ export function ShopLayout(
           }}
         >
           <div className="flex justify-between p-2">
-            <ShoppingCartButton
-              cartContent={shoppingCartContent}
-              shopId={shop.id}
-            />
+            <ShoppingCartButton cart={shoppingCartContent} />
             <button
               className="border p-2 rounded-md bg-gray-200"
               onClick={() =>

@@ -50,11 +50,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const shop = await getShopByHostName(request.headers.get("Host"));
   const shoppingCartContent = await parseShoppingCartCookie(request);
 
-  const productsInCart = shoppingCartContent?.[shop.id] ?? [];
-  const products = await getProducts(
-    productsInCart.map((p) => p.productId),
-    shop.id
-  );
+  const productIds = Object.keys(shoppingCartContent ?? {});
+  const products = await getProducts(productIds, shop.id);
 
   const priceSummary = await getOrderPriceSummary(
     shoppingCartContent,
@@ -146,8 +143,7 @@ function ProductTile({
   shop: LoaderDataType["shop"];
   locale: string;
 }) {
-  const qty =
-    cartContent?.[shop.id]?.find((p) => p.productId === product.id)?.qty ?? 0;
+  const qty = cartContent?.[product.id]?.qty ?? 0;
   const link = `../p/${product.url_name}`;
   const taxRate = parseFloat(product.tax_rate?.rate ?? "0.00") * 100;
 

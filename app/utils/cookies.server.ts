@@ -13,16 +13,14 @@ export const session = createCookie("login-session", {
   secure: process.env.NODE_ENV === "production",
 });
 
-/** Key=ShopId, Value=Array of ProductId's */
+/** Key=ProductId, Value=Object of properties */
 export const ShoppingCartCookieSchema = v.record(
-  v.string(),
-  v.array(
-    v.object({
-      productId: v.string(),
-      qty: v.pipe(v.number(), v.integer(), v.toMinValue(1)),
-    })
-  )
+  v.string(), // <- Product Id
+  v.object({
+    qty: v.pipe(v.number(), v.integer(), v.toMinValue(0)),
+  })
 );
+
 export const shoppingCart = createCookie("shopping-cart", {
   path: "/",
   // sameSite: "none",

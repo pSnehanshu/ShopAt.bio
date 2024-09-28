@@ -183,12 +183,11 @@ export async function addToShoppingCart(
   const existingCart = await parseShoppingCartCookie(request);
   const shop = await getShopByHostName(hostName);
   const product = await getProductByUrlNameOrThrow(shop.id, productUrlName);
-  const productId = product.id;
 
   if (!existingCart) {
     if (operation === "add") {
       const cart: v.InferOutput<typeof ShoppingCartCookieSchema> = {
-        [shop.id]: [{ productId, qty: 1 }],
+        [product.id]: { qty: 1 },
       };
 
       return shoppingCart.serialize(cart);
@@ -197,29 +196,19 @@ export async function addToShoppingCart(
     }
   }
 
-  const products = existingCart[shop.id];
-  if (products) {
-    const thisProductIndex = products.findIndex(
-      (p) => p.productId === productId
-    );
-
-    if (thisProductIndex < 0) {
-      if (operation === "add") {
-        products.push({ productId, qty: 1 });
-      }
+  const productInCart = existingCart[product.id];
+  if (productInCart) {
+    if (operation === "add") {
+      productInCart.qty++;
     } else {
-      if (operation === "add") {
-        products[thisProductIndex]!.qty++;
-      } else {
-        products[thisProductIndex]!.qty--;
-        if (products[thisProductIndex]!.qty <= 0) {
-          products.splice(thisProductIndex, 1);
-        }
+      productInCart.qty--;
+      if (productInCart.qty <= 0) {
+        delete existingCart[product.id];
       }
     }
   } else {
     if (operation === "add") {
-      existingCart[shop.id] = [{ productId, qty: 1 }];
+      existingCart[product.id] = { qty: 1 };
     }
   }
 

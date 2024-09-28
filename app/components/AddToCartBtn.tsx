@@ -4,7 +4,6 @@ import { PiShoppingCartFill } from "react-icons/pi";
 import { LoaderDataType } from "~/routes/_index/route";
 import { ArrayElement } from "~/utils/types";
 import { useFetcher } from "@remix-run/react";
-import { useMemo } from "react";
 
 type Product = ArrayElement<LoaderDataType["products"]>;
 type CartContent = LoaderDataType["shoppingCartContent"];
@@ -23,12 +22,7 @@ export function AddToCartBtn({
   const isInStock = product.qty >= 1;
   const fetcher = useFetcher();
 
-  const qtyInCart = useMemo(() => {
-    const allProducts = cartContent?.[product.shop_id] ?? [];
-    const cartProduct = allProducts.find((p) => p.productId === product.id);
-    return cartProduct?.qty ?? 0;
-  }, [cartContent, product.id, product.shop_id]);
-
+  const qtyInCart = cartContent?.[product.id]?.qty ?? 0;
   const isAddedToCart = qtyInCart > 0;
 
   return (

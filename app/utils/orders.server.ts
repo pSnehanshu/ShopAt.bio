@@ -44,22 +44,17 @@ export async function getOrderPriceSummary(
       ? await getShopByHostName(shopOrHostName)
       : shopOrHostName;
 
-  const cart = cartContent?.[shop.id] ?? [];
-  const products =
-    givenProducts ??
-    (await getProducts(
-      cart.map((item) => item.productId),
-      shop.id
-    ));
+  const productIds = Object.keys(cartContent ?? {});
+  const products = givenProducts ?? (await getProducts(productIds, shop.id));
 
   const { multiplier, symbol } = shop.base_currency_info;
 
   let subtotal = 0;
   let taxAmount = 0;
-  products.forEach((p) => {
-    const qty = cart.find((pc) => pc.productId === p.id)?.qty ?? 0;
-    const taxRate = parseFloat(p.tax_rate?.rate ?? "0.00");
-    const priceBeforeTax = p.price * qty;
+  products.forEach((product) => {
+    const qty = cartContent?.[product.id]?.qty ?? 0;
+    const taxRate = parseFloat(product.tax_rate?.rate ?? "0.00");
+    const priceBeforeTax = product.price * qty;
     subtotal += priceBeforeTax;
     taxAmount += priceBeforeTax * taxRate;
   });
@@ -122,16 +117,15 @@ export async function placeOrder(
 ): Promise<{ orderId: string; cookie: string }> {
   const shop = await getShopByHostName(hostName);
 
-  const productsInCart = shoppingCartContent?.[shop.id] ?? [];
-  if (productsInCart.length < 1 || !shoppingCartContent) {
-    throw new Error("Shopping cart is empty");
+  if (!shoppingCartContent) {
+    throw new Response("Shopping cart is empty", { status: 400 });
   }
 
-  const productIds = productsInCart.map((p) => p.productId);
+  const productIds = Object.keys(shoppingCartContent);
   const products = await getProducts(productIds, shop.id);
 
-  if (productsInCart.length !== products.length) {
-    throw new Error("Some products not found!");
+  if (productIds.length !== products.length) {
+    throw new Response("Some products not found!", { status: 404 });
   }
 
   // Process the order
@@ -146,7 +140,7 @@ export async function placeOrder(
   const productsColumnInput: v.InferInput<typeof ProductsSchema> = products.map(
     (p) => {
       const taxRate = parseFloat(p.tax_rate?.rate ?? "0.00");
-      const qty = productsInCart.find((pc) => pc.productId === p.id)?.qty ?? 0;
+      const qty = shoppingCartContent[p.id]?.qty ?? 0;
 
       return {
         id: p.id,
@@ -240,8 +234,7 @@ export async function placeOrder(
   // TODO: 4. Sending confirmation emails
 
   // Clear shopping cart
-  delete shoppingCartContent[shop.id];
-  const cookie = await shoppingCart.serialize(shoppingCartContent);
+  const cookie = await shoppingCart.serialize({});
 
   return { cookie, orderId: order.id };
 }

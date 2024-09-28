@@ -58,12 +58,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   const shoppingCartContent = await parseShoppingCartCookie(request);
-  const shop = await getShopByHostName(request.headers.get("Host"));
-
-  const productsInCart = shoppingCartContent?.[shop.id] ?? [];
-  if (productsInCart.length > 0) {
+  if (!shoppingCartContent) {
     return redirect("../");
   }
+
+  const shop = await getShopByHostName(request.headers.get("Host"));
 
   return json({ shop, orderId });
 }

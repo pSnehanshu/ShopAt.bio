@@ -3,18 +3,14 @@ import { PiShoppingCartLight } from "react-icons/pi";
 import type { RootLoaderData } from "~/root";
 
 export function ShoppingCartButton({
-  cartContent,
-  shopId,
+  cart,
 }: {
-  cartContent: RootLoaderData["shoppingCartContent"];
-  shopId: string;
+  cart: RootLoaderData["shoppingCartContent"];
 }) {
-  const products = cartContent?.[shopId] ?? [];
-
   let total = 0;
-  products.forEach((p) => {
-    total += p.qty;
-  });
+  for (const productId in cart) {
+    total += cart[productId]?.qty ?? 0;
+  }
 
   return (
     <Link to="cart" className="border p-2 rounded-md bg-gray-200 flex gap-2">

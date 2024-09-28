@@ -22,18 +22,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const locale = getUserLocale(request.headers.get("Accept-Language"));
 
   const shoppingCartContent = await parseShoppingCartCookie(request);
-  const shop = await getShopByHostName(request.headers.get("Host"));
-
-  const productsInCart = shoppingCartContent?.[shop.id] ?? [];
-  if (productsInCart.length < 1) {
+  if (!shoppingCartContent) {
     return redirect("..");
   }
 
-  const products = await getProducts(
-    productsInCart.map((p) => p.productId),
-    shop.id
-  );
-
+  const productIds = Object.keys(shoppingCartContent);
+  const shop = await getShopByHostName(request.headers.get("Host"));
+  const products = await getProducts(productIds, shop.id);
   const priceSummary = await getOrderPriceSummary(
     shoppingCartContent,
     shop,

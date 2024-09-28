@@ -15,17 +15,14 @@ export function ShoppingCartBanner({
   shop: RootLoaderData["shop"];
   locale: string;
 }) {
-  const productsInCookie = cartContent?.[shop.id] ?? [];
   let total = 0;
-  productsInCookie.forEach((p) => {
-    total += p.qty;
-  });
+  for (const productId in cartContent) {
+    total += cartContent[productId]?.qty ?? 0;
+  }
 
   let totalCost = 0;
   productsInfo.forEach((p) => {
-    const prodInCookie = productsInCookie.find((pc) => pc.productId === p.id);
-    const qty = prodInCookie?.qty ?? 0;
-
+    const qty = cartContent?.[p.id]?.qty ?? 0;
     totalCost += p.price * qty;
   });
 
@@ -40,11 +37,13 @@ export function ShoppingCartBanner({
     locale
   );
 
+  const productsCount = Object.keys(cartContent ?? {}).length;
+
   return (
     <div className="grid grid-cols-6 min-h-16 fixed bottom-0 md:bottom-5 left-1/2 transform -translate-x-1/2 w-full md:max-w-xl shadow-xl bg-[#1b881a] bg-opacity-70 backdrop-blur-sm md:rounded-xl p-2">
       <div className="col-span-4 text-white p-2">
         <p className="text-sm">
-          There are {productsInCookie.length} product(s) in your cart.
+          There are {productsCount} product(s) in your cart.
         </p>
         <p className="text-xl font-bold">
           {priceToDisplay} <span className="text-sm font-normal">+ taxes</span>
