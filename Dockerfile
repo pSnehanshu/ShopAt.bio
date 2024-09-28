@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:1
 
 # Adjust NODE_VERSION as desired
-ARG NODE_VERSION=20.11.0
-FROM node:${NODE_VERSION}-slim as base
+ARG NODE_VERSION=22.9.0
+FROM node:${NODE_VERSION}-slim AS base
 
 LABEL fly_launch_runtime="Remix"
 
@@ -14,7 +14,7 @@ ENV NODE_ENV="production"
 
 
 # Throw-away build stage to reduce size of final image
-FROM base as build
+FROM base AS build
 
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
@@ -37,22 +37,12 @@ RUN npm prune --omit=dev
 # Final stage for app image
 FROM base
 
-# Install packages needed for deployment
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y sqlite3 && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
 # Copy built application
-COPY --from=build /app /app
-
-# Setup sqlite3 on a separate volume
-RUN mkdir -p /data
-VOLUME /data
-
-# add shortcut for connecting to database CLI
-RUN echo "#!/bin/sh\nset -x\nsqlite3 \$DATABASE_URL" > /usr/local/bin/database-cli && chmod +x /usr/local/bin/database-cli
+COPY --from=build /app/build /app/build
+COPY --from=build /app/node_modules /app/node_modules
+COPY package*.json drizzle.config.ts tsconfig.json ./
+COPY db ./db
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-ENV DATABASE_URL="file:///data/sqlite.db"
-CMD [ "npm", "run", "start" ]
+CMD [ "npm", "start" ]
