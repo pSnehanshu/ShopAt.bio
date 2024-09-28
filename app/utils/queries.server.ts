@@ -6,7 +6,6 @@ import SQLite from "better-sqlite3";
 import url from "url";
 import path from "path";
 import psl from "psl";
-import { getFileURL } from "./misc";
 
 export async function getShopByHostName(hostName: string | null | undefined) {
   // Hostname may contain port, remove it
@@ -99,6 +98,10 @@ export async function getProductByUrlNameOrThrow(
   return {
     ...product,
     photoUrl: getFileURL(product.photos.at(0)?.path),
+    photos: product.photos.map((p) => ({
+      ...p,
+      url: getFileURL(p.path),
+    })),
   };
 }
 
@@ -124,6 +127,10 @@ export async function getProductById(
   return {
     ...product,
     photoUrl: getFileURL(product.photos.at(0)?.path),
+    photos: product.photos.map((p) => ({
+      ...p,
+      url: getFileURL(p.path),
+    })),
   };
 }
 
@@ -289,4 +296,10 @@ export async function getOrderDetails(orderId: string) {
   });
 
   return { order, productPics };
+}
+
+export function getFileURL(path: string | null | undefined): string {
+  if (!path) return "/product-placeholder.webp";
+
+  return `${process.env.AWS_ENDPOINT_URL_S3}/${process.env.BUCKET_NAME}/${path}`;
 }

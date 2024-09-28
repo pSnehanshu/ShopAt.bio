@@ -18,9 +18,3 @@ export function getCurrencyAmtFormatted(
   const amt = amount / multiplier;
   return amt.toLocaleString(locale, { style: "currency", currency });
 }
-
-export function getFileURL(path: string | null | undefined): string {
-  if (!path) return "/product-placeholder.webp";
-
-  return path;
-}

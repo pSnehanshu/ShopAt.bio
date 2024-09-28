@@ -27,7 +27,7 @@ export function ProductPhotosSlider({
         {photos.map((photo) => (
           <SwiperSlide key={photo.id}>
             <img
-              src={photo.path}
+              src={photo.url}
               alt={photo.caption ?? ""}
               className="w-full h-96 object-contain"
             />
