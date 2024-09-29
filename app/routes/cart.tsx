@@ -5,7 +5,7 @@ import {
   MetaFunction,
   SerializeFrom,
 } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { MdAdd, MdRemove } from "react-icons/md";
 import invariant from "tiny-invariant";
 import { PriceSummary } from "~/components/PriceSummary";
@@ -18,6 +18,7 @@ import {
   parseShoppingCartCookie,
 } from "~/utils/queries.server";
 import type { ArrayElement } from "~/utils/types";
+import clsx from "clsx";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -143,6 +144,9 @@ function ProductTile({
   shop: LoaderDataType["shop"];
   locale: string;
 }) {
+  const fetcher = useFetcher();
+  const isLoading = fetcher.state === "submitting";
+
   const qty = cartContent?.[product.id]?.qty ?? 0;
   const link = `../p/${product.url_name}`;
   const taxRate = parseFloat(product.tax_rate?.rate ?? "0.00") * 100;
@@ -165,14 +169,22 @@ function ProductTile({
           {totalCost} <span className="text-xs font-normal">+{taxRate}%</span>
         </div>
 
-        <Form method="post">
+        <fetcher.Form
+          method="post"
+          className={clsx({ "animate-pulse": isLoading })}
+        >
           <input
             type="hidden"
             name="product_url_name"
             value={product.url_name}
           />
 
-          <div className="my-4 w-40 bg-white bg-opacity-70 grid grid-cols-4 h-10 transition-all rounded-xl overflow-hidden shadow-md">
+          <div
+            className={clsx(
+              "my-4 w-40 bg-white bg-opacity-70 grid grid-cols-4 h-10 transition-all rounded-xl overflow-hidden shadow-md",
+              { "pointer-events-none": isLoading }
+            )}
+          >
             <button
               type="submit"
               className="border border-transparent hover:border-gray-400 rounded-l-xl hover:shadow-xl transition-all"
@@ -195,7 +207,7 @@ function ProductTile({
               <MdAdd className="relative left-2" />
             </button>
           </div>
-        </Form>
+        </fetcher.Form>
       </div>
 
       <div>

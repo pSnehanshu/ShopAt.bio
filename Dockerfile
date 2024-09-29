@@ -40,7 +40,7 @@ FROM base
 # Copy built application
 COPY --from=build /app/build /app/build
 COPY --from=build /app/node_modules /app/node_modules
-COPY package*.json drizzle.config.ts tsconfig.json ./
+COPY package*.json drizzle.config.ts ./
 COPY db ./db
 
 # Start the server by default, this can be overwritten at runtime
