@@ -84,7 +84,9 @@ export async function getProductByUrlNameOrThrow(
     where: (fields, { eq, and }) =>
       and(eq(fields.url_name, productUrlName), eq(fields.shop_id, shopId)),
     with: {
-      photos: true,
+      photos: {
+        where: (fields, { eq }) => eq(fields.is_visible, true),
+      },
       tax_rate: {
         columns: { id: true, name: true, rate: true },
       },
@@ -113,7 +115,9 @@ export async function getProductById(
   const product = await db.query.products.findFirst({
     where: (fields, { eq }) => eq(fields.id, productId),
     with: {
-      photos: true,
+      photos: {
+        where: (fields, { eq }) => eq(fields.is_visible, true),
+      },
       tax_rate: {
         columns: { id: true, name: true, rate: true },
       },
@@ -142,7 +146,8 @@ export async function getHomepageProducts(
       and(eq(fields.is_visible, true), eq(fields.shop_id, shopId)),
     with: {
       photos: {
-        where: (fields, { eq }) => eq(fields.is_main, true),
+        where: (fields, { eq, and }) =>
+          and(eq(fields.is_main, true), eq(fields.is_visible, true)),
         limit: 1,
         orderBy: (fields, { desc }) => desc(fields.created_at),
       },
@@ -227,7 +232,8 @@ export async function getProducts(productIds: string[], shopId: string) {
       and(eq(fields.shop_id, shopId), inArray(fields.id, productIds)),
     with: {
       photos: {
-        where: (fields, { eq }) => eq(fields.is_main, true),
+        where: (fields, { eq, and }) =>
+          and(eq(fields.is_main, true), eq(fields.is_visible, true)),
         limit: 1,
         orderBy: (fields, { desc }) => desc(fields.created_at),
       },

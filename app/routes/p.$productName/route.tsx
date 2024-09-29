@@ -60,10 +60,19 @@ export default function Index() {
 
   return (
     <div className="mb-16">
-      <ProductPhotosSlider photos={product.photos} />
+      <ProductPhotosSlider
+        photos={product.photos}
+        mainPhotoUrl={product.photoUrl}
+        productName={product.name}
+      />
 
       <div className="bg-white bg-opacity-40 rounded-b-xl p-4">
-        <h1 className="text-lg uppercase mb-4">{product.name}</h1>
+        <h1 className="text-lg uppercase mb-4">
+          {product.qty <= 0 && (
+            <span className="text-red-500">[Out of stock]</span>
+          )}{" "}
+          {product.name}
+        </h1>
         <p className="font-light mb-4">{product.description}</p>
 
         <div>
