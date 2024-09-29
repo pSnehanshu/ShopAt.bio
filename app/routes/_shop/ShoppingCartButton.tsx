@@ -1,11 +1,11 @@
 import { Link } from "@remix-run/react";
 import { PiShoppingCartLight } from "react-icons/pi";
-import type { RootLoaderData } from "~/root";
+import type { ShopLayoutData } from "~/routes/_shop/route";
 
 export function ShoppingCartButton({
   cart,
 }: {
-  cart: RootLoaderData["shoppingCartContent"];
+  cart: ShopLayoutData["shoppingCartContent"];
 }) {
   let total = 0;
   for (const productId in cart) {

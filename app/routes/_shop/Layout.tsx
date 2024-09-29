@@ -4,11 +4,11 @@ import { LuShare } from "react-icons/lu";
 import { SocialMediaLinks } from "./SocialMediaLinks";
 import { ShoppingCartBanner } from "./ShoppingCartBanner";
 import { ShoppingCartButton } from "./ShoppingCartButton";
-import type { RootLoaderData } from "~/root";
+import type { ShopLayoutData } from "~/routes/_shop/route";
 import toast from "react-hot-toast";
 
 export function ShopLayout(
-  props: RootLoaderData & { children: React.ReactNode }
+  props: ShopLayoutData & { children: React.ReactNode }
 ) {
   const location = useLocation();
 

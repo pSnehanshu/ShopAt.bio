@@ -11,10 +11,10 @@ import {
 } from "react-icons/pi";
 import { MdOutlineEmail } from "react-icons/md";
 import { FaQuora, FaXTwitter } from "react-icons/fa6";
-import type { RootLoaderData } from "~/root";
+import type { ShopLayoutData } from "~/routes/_shop/route";
 import { ArrayElement } from "~/utils/types";
 
-type SocialMediaLink = ArrayElement<RootLoaderData["shop"]["links"]>;
+type SocialMediaLink = ArrayElement<ShopLayoutData["shop"]["links"]>;
 
 export function SocialMediaLinks({
   links,

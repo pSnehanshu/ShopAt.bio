@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { MdAdd, MdRemove } from "react-icons/md";
 import { PiShoppingCartFill } from "react-icons/pi";
-import { LoaderDataType } from "~/routes/_index/route";
+import { LoaderDataType } from "~/routes/_shop._index/route";
 import { ArrayElement } from "~/utils/types";
 import { useFetcher } from "@remix-run/react";
 

@@ -1,4 +1,4 @@
-import type { RootLoaderData } from "~/root";
+import type { ShopLayoutData } from "~/routes/_shop/route";
 import { Link } from "@remix-run/react";
 import { PiShoppingCartFill } from "react-icons/pi";
 import { FaArrowRight } from "react-icons/fa6";
@@ -10,9 +10,9 @@ export function ShoppingCartBanner({
   shop,
   locale,
 }: {
-  cartContent: RootLoaderData["shoppingCartContent"];
-  productsInfo: RootLoaderData["shoppinCartProducts"];
-  shop: RootLoaderData["shop"];
+  cartContent: ShopLayoutData["shoppingCartContent"];
+  productsInfo: ShopLayoutData["shoppinCartProducts"];
+  shop: ShopLayoutData["shop"];
   locale: string;
 }) {
   let total = 0;

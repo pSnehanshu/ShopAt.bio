@@ -1,27 +1,14 @@
 import {
-  json,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
 } from "@remix-run/react";
-import type {
-  LinksFunction,
-  LoaderFunctionArgs,
-  MetaFunction,
-  SerializeFrom,
-} from "@remix-run/node";
+import type { LinksFunction } from "@remix-run/node";
 import { Toaster } from "react-hot-toast";
+
 import "./tailwind.css";
-import {
-  getProducts,
-  getShopByHostName,
-  parseShoppingCartCookie,
-} from "./utils/queries.server";
-import { getUserLocale } from "./utils/misc";
-import { ShopLayout } from "./components/ShopLayout";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -56,41 +43,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const shop = await getShopByHostName(request.headers.get("Host"));
-  const shoppingCartContent = await parseShoppingCartCookie(request);
-
-  const productsIds = Object.keys(shoppingCartContent ?? {});
-  const shoppinCartProducts = await getProducts(productsIds, shop.id);
-
-  const locale = getUserLocale(request.headers.get("Accept-Language"));
-
-  return json({ shop, shoppingCartContent, shoppinCartProducts, locale });
-}
-
-export type RootLoaderData = SerializeFrom<typeof loader>;
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [
-    { title: `${data?.shop.full_name} | ShopAt.bio` },
-    {
-      name: "description",
-      content: data?.shop.tagline,
-    },
-  ];
-};
-
 export default function App() {
-  const data = useLoaderData<typeof loader>();
-
-  return (
-    <ShopLayout
-      locale={data.locale}
-      shop={data.shop}
-      shoppinCartProducts={data.shoppinCartProducts}
-      shoppingCartContent={data.shoppingCartContent}
-    >
-      <Outlet />
-    </ShopLayout>
-  );
+  return <Outlet />;
 }
