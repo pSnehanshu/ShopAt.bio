@@ -92,6 +92,10 @@ export const socialMediaLinkRelations = relations(
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
+  email: varchar("email").unique(),
+  is_email_verified: boolean("is_email_verified").default(false).notNull(),
+  email_otp_hash: varchar("email_otp_hash", { length: 60 }),
+  email_otp_expiry: timestamp("email_otp_expiry", { withTimezone: true }),
   created_at: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -99,7 +103,30 @@ export const users = pgTable("users", {
 
 export const userRelations = relations(users, ({ many }) => ({
   shops: many(shops),
+  sessions: many(userLoginSessions),
 }));
+
+export const userLoginSessions = pgTable("user_login_sessions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  token_hash: varchar("token_hash", { length: 60 }).notNull(),
+  user_id: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  expiry: timestamp("expiry", { withTimezone: true }).notNull(),
+});
+
+export const userLoginSessionRelation = relations(
+  userLoginSessions,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userLoginSessions.user_id],
+      references: [users.id],
+    }),
+  })
+);
 
 export const currencies = pgTable("currencies", {
   symbol: varchar("symbol", { length: 3 }).primaryKey(),

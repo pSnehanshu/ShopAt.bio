@@ -8,6 +8,20 @@
       "when": 1727511957538,
       "tag": "0000_elite_purple_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1727602704851,
+      "tag": "0001_normal_misty_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1727647764730,
+      "tag": "0002_lively_grandmaster",
+      "breakpoints": true
     }
   ]
 }
