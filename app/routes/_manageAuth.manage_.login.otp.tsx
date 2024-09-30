@@ -28,7 +28,7 @@ export async function action({ request }: ActionFunctionArgs) {
       const otp = formData.get("otp")?.toString();
       invariant(userId && otp, "User id and OTP must be submitted");
       const cookie = await submitOTPandGetSessionCookie(request, userId, otp);
-      return redirect("..", { headers: { "Set-Cookie": cookie } });
+      return redirect("../manage", { headers: { "Set-Cookie": cookie } });
     }
     default:
       throw new Response("invalid intent", { status: 400 });
@@ -40,19 +40,28 @@ export default function ManagementPortalLogin() {
 
   return (
     <div>
-      <h1>Enter OTP</h1>
-
-      <Form method="post">
+      <Form method="post" className="space-y-4">
         <input type="hidden" name="intent" value="submit_otp" />
         <input type="hidden" name="user_id" value={data?.user_id} />
         <div>
-          <label>
-            <span>OTP</span>
-            <input type="number" name="otp" />
+          <label className="space-y-1">
+            <div className="ml-1">Enter OTP</div>
+            <input
+              type="number"
+              name="otp"
+              className="border bg-white p-2 rounded-xl w-full"
+            />
           </label>
         </div>
 
-        <button type="submit">Submit OTP</button>
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            className="border px-4 py-2 rounded-xl bg-white hover:bg-gray-100 transition-colors"
+          >
+            Submit OTP
+          </button>
+        </div>
       </Form>
     </div>
   );

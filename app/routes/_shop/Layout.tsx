@@ -71,7 +71,7 @@ export function ShopLayout(
             <Link to=".">
               <img
                 className="rounded-full w-24 min-h-24 object-contain border"
-                src={shop.iconUrl ?? "https://placehold.co/100"}
+                src={shop.iconUrl}
                 alt={`${shop.full_name}'s logo`}
               />
             </Link>

@@ -127,7 +127,6 @@ function parseSessionId(
 ): null | { uuid: string; token: string } {
   const parsed = v.safeParse(SessionIdSchma, sessionId);
   if (!parsed.success) {
-    console.error("Session Id parse error:", parsed.issues);
     return null;
   }
 
